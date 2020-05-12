@@ -26,15 +26,18 @@ To keep things simple, it is operated with command line inputs and state is held
 
 ### Queries
 
-* User runs the application with command line inputs specifying a query such as 'balanceOf'
-* The balance of the specified account is looked up in the local state and printed to the console 
+* User runs the application with command line inputs specifying a query such as `balanceOf`
+* The specified query is run against local state and printed to the console 
 
 ### Refresh
 
-This is a "special" command which instructs the application to subscribe to a mirror node and act upon the notifications that result from operations above
+This is a "special" command which instructs the application to subscribe to a mirror node and act upon the notifications that result from operations above.
+
 When a notification is received
+
 * it is parsed
 * the signature is verified
+* operations that can only be performed by the owner are rejected if not initiated by the correct address
 * inputs are checked against state (e.g. does an address have sufficient balance for a transfer)
 * if all successful, local state is updated 
 
@@ -83,20 +86,20 @@ java -jar hcs-token-example-1.0-run.jar totalSupply
 
 ## Individual commands
 
-### Mirror update
+### Refresh 
 
 Any operation that affects state is only applied as a result of a mirror notification, no local state updates are performed unless they are motivated by a mirror notification.
 This ensures the consistency of state across all instances of the application. Indeed, if a HCS transaction failed for some reason and local state had been updated previously, there would be a discrepancy in state between application instances.
 
 This update should be run before any queries to ensure the local application state is up to date.
 
-_Note: A more complete implementation would run this in the background as a thread for example to ensure local state is updated as promptly as possible_
-
-_Note: Allow a few seconds after `construct` to run `refresh` to allow the new `TopicId` to be propagated to mirror nodes._
-
 ```shell script
 java -jar hcs-token-example-1.0-run.jar refresh
 ```
+
+_Note: A more complete implementation would run this in the background as a thread for example to ensure local state is updated as promptly as possible_
+
+_Note: Allow a few seconds after `construct` to run `refresh` to allow the new `TopicId` to be propagated to mirror nodes._
 
 ### Construct
 
@@ -104,7 +107,7 @@ This constructs a HCS transaction to construct the token with a `name`, `symbol`
 It will automatically create a new `HCS TopicId` and return it to the console, you can communicate this topic Id to others so they can join your App Net.
 This will also be stored in `{your operator id}.json` so that it is remembered by the application.
 
-** Note: If you include a space in the token name, be sure to surround the name in quotes (e.g. `"my token"`) **
+_Note: If you include a space in the token name, be sure to surround the name in quotes (e.g. `"my token"`)_
 
 ```shell script
 java -jar hcs-token-example-1.0-run.jar construct TestToken TTT 8
@@ -114,7 +117,7 @@ java -jar hcs-token-example-1.0-run.jar construct TestToken TTT 8
 
 This sets up an App Net instance to join a particular Token by informing it of the `Topic Id` to use and also sends a HCS transaction to inform other App Net participants of the new user's address, it should be run by anyone wanting to take part in the token.
 
-_Note: `Construct` automatically adds the operator's address to the address book and sets it to be the owner of the token.
+_Note: `Construct` automatically adds the operator's address to the address book and sets it to be the owner of the token._
 
 ```shell script
 java -jar hcs-token-example-1.0-run.jar join topicId (e.g. 0.0.1234)
@@ -183,12 +186,12 @@ This returns the `balance` of the specified address from local state. If this re
 java -jar hcs-token-example-1.0-run.jar balanceOf input_your_public_key_here
 ```
 
-### Transfer to another address
+### Transfer 
 
 This constructs a HCS transaction to transfer tokens from one address to another.
 When the notification is received (`refresh`), both addresses' balances are updated.
 
-_Note: The `from` address is set to the public key derived from the `OPERATOR_KEY` in the `.env` file.
+_Note: The `from` address is set to the public key derived from the `OPERATOR_KEY` in the `.env` file._
 
 ```shell script
 java -jar hcs-token-example-1.0-run.jar transfer 302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232 20
@@ -196,7 +199,7 @@ java -jar hcs-token-example-1.0-run.jar transfer 302a300506032b65700321009308a43
 
 ## Acting as another user
 
-If you would like to pretend to be another user of the App Net, you will need to:
+If you would like to pretend to be another user (or node) of the App Net, you will need to:
 
 * Create a Hedera Account Id with sufficient funds to run HCS transactions
 * Update your `.env` file with the new account details
@@ -214,6 +217,8 @@ java -jar hcs-token-example-1.0-run.jar refresh
 ```
 
 to update your local state from notifications
+
+From then on, any operations you perform will be performed with this user's address.
 
 ## Local state
 
