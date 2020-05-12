@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package proto;
+
+option java_multiple_files = true;
+
+message Construct {
+  string name = 1;
+  string symbol = 2;
+  int32 decimals = 3;
+}
+
+message Mint {
+  string address = 1;
+  uint64 quantity = 2;
+}
+
+message Transfer {
+  string toAddress = 1;
+  string fromAddress = 2;
+  uint64 quantity = 3;
+}
+
+message Join {
+  string address = 1;
+}
+
+message Primitive {
+  bytes signature = 1;
+  string publicKey = 2;
+
+  oneof primitive {
+    Construct construct = 3;
+    Mint mint = 4;
+    Transfer transfer = 5;
+    Join join = 6;
+  }
+}
