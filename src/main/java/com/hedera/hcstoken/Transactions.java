@@ -33,14 +33,15 @@ public final class Transactions {
      * @throws Exception
      */
     public static void construct(Token token, String name, String symbol, int decimals) throws Exception {
-        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
-        TransactionId transactionId = new ConsensusTopicCreateTransaction()
-                .execute(client);
-
-        final ConsensusTopicId topicId = transactionId.getReceipt(client).getConsensusTopicId();
-        System.out.println("New topic created: " + topicId);
 
         if (token.getTopicId().isEmpty()) {
+            client.setOperator(OPERATOR_ID, OPERATOR_KEY);
+            TransactionId transactionId = new ConsensusTopicCreateTransaction()
+                    .execute(client);
+
+            final ConsensusTopicId topicId = transactionId.getReceipt(client).getConsensusTopicId();
+            System.out.println("New topic created: " + topicId);
+
             // create a new topic Id
             token.setTopicId(topicId.toString());
 
