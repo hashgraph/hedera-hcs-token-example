@@ -27,3 +27,4 @@ hs_err_pid*
 HCSToken.iml
 run.sh
 target/
+erc20.sol

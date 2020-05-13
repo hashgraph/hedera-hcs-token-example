@@ -22,7 +22,7 @@ public final class Primitives {
             token.setSymbol(symbol);
             token.setDecimals(decimals);
 
-            Address address = token.getAddressBook().addAddress(ownerAddress);
+            Address address = token.addAddress(ownerAddress);
             address.setOwner(true);
         } else {
             System.out.println("Construct - Token already constructed");
@@ -41,9 +41,11 @@ public final class Primitives {
             System.out.println("Address is not token owner's address");
         } else {
             if (token.getTotalSupply() == 0) {
-                token.setTotalSupply(quantity);
-                Address ownerAddress = token.getAddressBook().getAddress(address);
-                ownerAddress.setBalance(quantity);
+                // TODO: Switch to BigInteger for supply and addresses ?
+                long tokenSupply = quantity * (10 ^ token.getDecimals());
+                token.setTotalSupply(tokenSupply);
+                Address ownerAddress = token.getAddress(address);
+                ownerAddress.setBalance(tokenSupply);
             } else {
                 System.out.println("Mint - Token already minted");
             }
@@ -57,8 +59,8 @@ public final class Primitives {
      * @param quantity: the quantity to transfer
      */
     public static void transfer(Token token, String fromAddress, String toAddress, long quantity) {
-        final Address senderAddress = token.getAddressBook().getAddress(fromAddress);
-        Address recipientAddress = token.getAddressBook().getAddress(toAddress);
+        final Address senderAddress = token.getAddress(fromAddress);
+        Address recipientAddress = token.getAddress(toAddress);
 
         System.out.println(String.format("Processing mirror notification - transfer from (%s) to (%s) %d", fromAddress, toAddress, quantity));
 
@@ -73,7 +75,7 @@ public final class Primitives {
                 // Note: This is for demo purposes, it is dangerous to do this without knowing
                 // if the address is valid, indeed funds could be locked into this account
                 // indefinitely if the corresponding private key is not known.
-                recipientAddress = token.getAddressBook().addAddress(toAddress);
+                recipientAddress = token.addAddress(toAddress);
             }
             // check sender balance
             if (senderAddress.getBalance() >= quantity) {
@@ -92,8 +94,8 @@ public final class Primitives {
      */
     public static void join(Token token, String address) {
         System.out.println(String.format("Processing mirror notification - join %s", address));
-        if (token.getAddressBook().getAddress(address) == null) {
-            token.getAddressBook().addAddress(address);
+        if (token.getAddress(address) == null) {
+            token.addAddress(address);
         } else {
             System.out.println("Address " + address + " already part of the App Net");
         }
@@ -106,7 +108,7 @@ public final class Primitives {
      * @return boolean: true if the address is known
      */
     private static boolean isKnownAddress(Token token, String address) {
-        return (token.getAddressBook().getAddress(address) != null);
+        return (token.getAddress(address) != null);
     }
     /**
      * Checks if an address is valid and the owner of the token
@@ -115,6 +117,6 @@ public final class Primitives {
      * @return boolean: true if the address is know and is the owner
      */
     private static boolean isOwner(Token token, String address) {
-        return (token.getAddressBook().getAddress(address) != null && token.getAddressBook().getAddress(address).isOwner());
+        return (token.getAddress(address) != null && token.getAddress(address).isOwner());
     }
 }
