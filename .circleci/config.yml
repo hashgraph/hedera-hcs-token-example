@@ -24,8 +24,10 @@ jobs:
           key: maven-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
-      # - store_test_results:
-      #     path: ./hcs-sxc-java-coverage/target/site/jacoco-aggregate
-      # - run:
-      #     name: Upload Code Coverage
-      #     command: bash <(curl -s https://codecov.io/bash)
+      - store_artifacts:
+          path:  target
+#      - store_test_results:
+#          path: ./hedera-hcs-token-example/target/test-report
+#      - run:
+#          name: Upload Code Coverage
+#          command: bash <(curl -s https://codecov.io/bash)
