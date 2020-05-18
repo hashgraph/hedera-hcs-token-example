@@ -39,8 +39,8 @@ import java.util.Objects;
  * It is invoked by the HCSErc20 class following command line inputs
  */
 public final class Transactions {
-    private static final AccountId OPERATOR_ID = AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID")));
-    private static final Ed25519PrivateKey OPERATOR_KEY = Ed25519PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
+    private static final AccountId OPERATOR_ID = AccountId.fromString(Objects.requireNonNull(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID")));
+    private static final Ed25519PrivateKey OPERATOR_KEY = Ed25519PrivateKey.fromString(Objects.requireNonNull(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_KEY")));
     private static final Client client = Client.forTestnet();
 
     /**

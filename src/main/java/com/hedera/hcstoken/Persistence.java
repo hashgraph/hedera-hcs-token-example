@@ -34,7 +34,7 @@ import java.util.Objects;
  * typically use a database for this purpose
  */
 public final class Persistence {
-    private static final String fileName = AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID"))).toString() + ".json";
+    private static final String fileName = AccountId.fromString(Objects.requireNonNull(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID"))).toString() + ".json";
     /**
      * Loads token data from a file
      * @throws Exception: in the event of an error
