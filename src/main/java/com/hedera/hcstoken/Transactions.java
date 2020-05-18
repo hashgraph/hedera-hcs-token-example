@@ -40,7 +40,7 @@ import java.util.Objects;
  */
 public final class Transactions {
     private static final AccountId OPERATOR_ID = AccountId.fromString(Objects.requireNonNull(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID")));
-    private static final Ed25519PrivateKey OPERATOR_KEY = Ed25519PrivateKey.fromString(Objects.requireNonNull(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_KEY")));
+    private static final Ed25519PrivateKey OPERATOR_KEY = Ed25519PrivateKey.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_KEY"));
     private static final Client client = Client.forTestnet();
 
     /**
