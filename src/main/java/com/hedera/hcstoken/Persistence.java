@@ -34,12 +34,12 @@ import java.util.Objects;
  * typically use a database for this purpose
  */
 public final class Persistence {
-    private static final String fileName = AccountId.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID")).toString() + ".json";
     /**
      * Loads token data from a file
      * @throws Exception: in the event of an error
      */
     public static Token loadToken() throws Exception {
+        final String fileName = AccountId.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID")).toString() + ".json";
         Token token = new Token();
         File stateFile = new File(fileName);
         return loadToken(stateFile);
@@ -63,6 +63,7 @@ public final class Persistence {
      * @throws Exception: in the event of an error
      */
     public static void saveToken(Token token) throws Exception {
+        final String fileName = AccountId.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID")).toString() + ".json";
         ObjectMapper objectMapper = new ObjectMapper();
         File stateFile = new File(fileName);
         saveToken(token, stateFile);
