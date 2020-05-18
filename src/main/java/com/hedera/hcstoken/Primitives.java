@@ -46,6 +46,7 @@ public final class Primitives {
             address.setOwner(true);
         } else {
             System.out.println("Construct - Token already constructed");
+            throw new Exception("Construct - Token already constructed");
         }
     }
     /**
@@ -54,11 +55,12 @@ public final class Primitives {
      * @param address: the address of the token's owner
      * @param quantity: the quantity to mint
      */
-    public static void mint(Token token, String address, long quantity) {
+    public static void mint(Token token, String address, long quantity) throws Exception {
         System.out.println(String.format("Processing mirror notification - mint %s %d", address, quantity));
         // check the initiator is the owner
         if ( ! isOwner(token, address) )  {
             System.out.println("Address is not token owner's address");
+            throw new Exception("Address is not token owner's address");
         } else {
             if (token.getTotalSupply() == 0) {
                 // TODO: Switch to BigInteger for supply and addresses ?
@@ -68,6 +70,7 @@ public final class Primitives {
                 ownerAddress.setBalance(tokenSupply);
             } else {
                 System.out.println("Mint - Token already minted");
+                throw new Exception("Mint - Token already minted");
             }
         }
     }

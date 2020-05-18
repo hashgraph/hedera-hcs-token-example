@@ -42,6 +42,15 @@ public final class Persistence {
     public static Token loadToken() throws Exception {
         Token token = new Token();
         File stateFile = new File(fileName);
+        return loadToken(stateFile);
+    }
+    /**
+     * Loads token data from a file
+     * This is for unit testing purposes, should call loadToken() otherwise
+     * @throws Exception: in the event of an error
+     */
+    public static Token loadToken(File stateFile) throws Exception {
+        Token token = new Token();
         if (stateFile.exists()) {
             // a file containing existing state exists, let's load it
             ObjectMapper objectMapper = new ObjectMapper();
@@ -56,6 +65,15 @@ public final class Persistence {
     public static void saveToken(Token token) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         File stateFile = new File(fileName);
+        saveToken(token, stateFile);
+    }
+    /**
+     * Saves token data to a file
+     * This is for unit testing purposes, should call saveToken() otherwise
+     * @throws Exception: in the event of an error
+     */
+    public static void saveToken(Token token, File stateFile) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.writeValue(stateFile, token);
     }
 }

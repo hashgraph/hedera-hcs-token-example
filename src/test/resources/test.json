@@ -1,0 +1,23 @@
+{
+  "totalSupply": 1000,
+  "symbol": "TTT",
+  "name": "TestToken",
+  "decimals": 8,
+  "lastConsensusSeconds": 1589301202,
+  "lastConsensusNanos": 955026000,
+  "addressBook": {
+    "addresses": {
+      "302a300506032b65700321006e42135c6c7c9162a5f96f6d693677742fd0b3f160e1168cc28f2dadaa9e79cc": {
+        "balance": 980,
+        "publicKey": "302a300506032b65700321006e42135c6c7c9162a5f96f6d693677742fd0b3f160e1168cc28f2dadaa9e79cc",
+        "owner": true
+      },
+      "302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232": {
+        "balance": 20,
+        "publicKey": "302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232",
+        "owner": false
+      }
+    }
+  },
+  "topicId": "0.0.43342"
+}
