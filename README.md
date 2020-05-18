@@ -1,6 +1,6 @@
 # HCS Token
 
-This is a sample implementation and ERC20 like token in a Hedera Consensus Service(HCS) App Net.
+This is a sample implementation and ERC20 like token in a Hedera Consensus Service(HCS) Decentralized Application.
 
 ## Overview
 
