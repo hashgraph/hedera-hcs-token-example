@@ -1,9 +1,31 @@
-version: 2.1
-
-orbs:
-  maven: circleci/maven@0.0.12
-
+# Java Maven CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
+version: 2
 workflows:
-  maven_test:
+  version: 2
+  main:
     jobs:
-      - maven/test # checkout, build, test, and upload test results
+      - build_hcs_token_example
+jobs:
+  build_hcs_token_example:
+    docker:
+      - image: maven:latest #adoptopenjdk:11-jdk-hotspot
+        environment:
+          # Customize the JVM maximum heap limit
+          MAVEN_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - run:
+          name: Running maven (validate, compile, test, package)
+          command: mvn package
+      - save_cache:
+          key: maven-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
+          paths:
+            - ~/.m2
+      # - store_test_results:
+      #     path: ./hcs-sxc-java-coverage/target/site/jacoco-aggregate
+      # - run:
+      #     name: Upload Code Coverage
+      #     command: bash <(curl -s https://codecov.io/bash)
