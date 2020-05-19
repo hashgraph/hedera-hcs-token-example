@@ -229,6 +229,15 @@ When the notification is received (`refresh`), the allowance for the `spender` a
 java -jar hcs-token-example-1.0-run.jar increaseAllowance 302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232 20
 ```
 
+### Decrease Allowance
+
+This constructs a HCS transaction to decrease the allowance for a given address.
+When the notification is received (`refresh`), the allowance for the `spender` address is decreased accordingly.
+
+```shell script
+java -jar hcs-token-example-1.0-run.jar decreaseAllowance 302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232 20
+```
+
 ## Acting as another user
 
 If you would like to pretend to be another user (or node) of the App Net, you will need to:

@@ -33,6 +33,12 @@ message IncreaseAllowance {
   uint64 addedValue = 3;
 }
 
+message DecreaseAllowance {
+  string fromAddress = 1;
+  string spender = 2;
+  uint64 subtractedValue = 3;
+}
+
 message Join {
   string address = 1;
 }
@@ -48,5 +54,6 @@ message Primitive {
     Join join = 6;
     Approve approve = 7;
     IncreaseAllowance increaseAllowance = 8;
+    DecreaseAllowance decreaseAllowance = 9;
   }
 }

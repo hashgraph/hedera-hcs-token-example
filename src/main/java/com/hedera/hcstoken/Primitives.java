@@ -178,6 +178,45 @@ public final class Primitives {
             }
         }
     }
+
+    /**
+     * Decrease allowance for an address
+     * @param token: the token object
+     * @param from: the address to add allowance to
+     * @param spender: the address to allow
+     * @param subtractedValue: the amount to substract from the allowance
+     * @throws Exception: in the event of an error
+     */
+    public static void decreaseAllowance(Token token, String from, String spender, long subtractedValue) throws Exception {
+        System.out.println(String.format("Processing mirror notification - decreaseAllowance (%s) for (%s) by %d", from, spender, subtractedValue));
+
+        final Address fromAddress = token.getAddress(from);
+
+        if (!isKnownAddress(token, from)) {
+            String error = "DecreaseAllowance - from address unknown";
+            System.out.println(error);
+            throw new Exception(error);
+        } else if ((spender == null) || (spender.isEmpty())) {
+            String error = "DecreaseAllowance - spender address is empty";
+            System.out.println(error);
+            throw new Exception(error);
+        } else {
+            if (fromAddress.getAllowances().containsKey(spender)) {
+                if (fromAddress.getAllowance(spender) < subtractedValue) {
+                    String error = "DecreaseAllowance - decreased allowance below zero";
+                    System.out.println(error);
+                    throw new Exception(error);
+                }
+                long allowance = fromAddress.getAllowance(spender) - subtractedValue;
+                fromAddress.getAllowances().put(spender, allowance);
+            } else {
+                String error = "DecreaseAllowance - spender address is not approved";
+                System.out.println(error);
+                throw new Exception(error);
+            }
+        }
+    }
+
     /**
      * Adds an address to the App Net by adding it to the address book
      * @param token: the token object

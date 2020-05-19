@@ -164,6 +164,25 @@ public class TransactionsTest extends AbstractTestData {
         checkSigAndKey(signature, primitive);
     }
 
+    @Test
+    public void testDecreaseAllowance() throws Exception {
+        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Token token = new Token();
+
+        DecreaseAllowance decreaseAllowance = DecreaseAllowance.newBuilder()
+                .setFromAddress(this.operatorKey.publicKey.toString())
+                .setSpender(this.pubKeyOther)
+                .setSubtractedValue(this.allowance)
+                .build();
+
+        byte[] signature = this.operatorKey.sign(decreaseAllowance.toByteArray());
+
+        Primitive primitive = Transactions.decreaseAllowance(token, this.pubKeyOther, this.allowance);
+
+        Assertions.assertArrayEquals(decreaseAllowance.toByteArray(), primitive.getDecreaseAllowance().toByteArray());
+        checkSigAndKey(signature, primitive);
+    }
+
     private void checkSigAndKey(byte[] signature, Primitive primitive) {
         Assertions.assertArrayEquals(signature, primitive.getSignature().toByteArray());
         Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getPublicKey());
