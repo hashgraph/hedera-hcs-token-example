@@ -20,6 +20,9 @@ package com.hedera.hcstoken.state;
  * ‍
  */
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * An Address represents a token holder with a balance
  * An address also holds a boolean indicating if the address is the owner of the token
@@ -30,7 +33,7 @@ public final class Address {
     private long balance = 0;
     private String publicKey = "";
     private boolean owner = false;
-
+    private Map<String, Long> allowances = new HashMap<String, Long>();
     public Address() {
     }
     public Address(String publicKey) {
@@ -53,5 +56,47 @@ public final class Address {
     }
     public void setOwner(boolean owner) {
         this.owner = owner;
+    }
+    public void setAllowances(Map<String, Long> allowances) throws Exception {
+        // check if list includes self
+        for (Map.Entry<String, Long> entry : allowances.entrySet()) {
+            if (entry.getKey().equals(this.publicKey)) {
+                String error = "Cannot add self to allowances";
+                System.out.print(error);
+                throw new Exception(error);
+            }
+        }
+        this.allowances = allowances;
+    }
+    public Map<String, Long> getAllowances() {
+        return this.allowances;
+    }
+
+    public long getAllowance(String address) {
+        try {
+            return this.allowances.get(address);
+        } catch (NullPointerException e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Adds an allowance to an address
+     * @param publicKey: The public key to add
+     * @param amount: The amount to allow
+     * @throws Exception in the event the added public key is already allowed or an allowance is added to self
+     */
+    public void addAllowance(String publicKey, long amount) throws Exception {
+        if (this.publicKey.equals(publicKey)) {
+            String error = "Cannot add self to allowances";
+            System.out.print(error);
+            throw new Exception(error);
+        } else if (this.allowances.get(publicKey) == null) {
+            this.allowances.put(publicKey, amount);
+        } else {
+            String error = "This address is already added to allowances";
+            System.out.print(error);
+            throw new Exception(error);
+        }
     }
 }
