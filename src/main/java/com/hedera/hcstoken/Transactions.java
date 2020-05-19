@@ -39,12 +39,20 @@ import java.util.Objects;
  * It is invoked by the HCSErc20 class following command line inputs
  */
 public final class Transactions {
-    private static AccountId OPERATOR_ID = AccountId.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID"));
-    private static Ed25519PrivateKey OPERATOR_KEY = Ed25519PrivateKey.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_KEY"));
+    private static AccountId OPERATOR_ID;
+    private static Ed25519PrivateKey OPERATOR_KEY;
     private static final Client client = Client.forTestnet();
 
     private static boolean testing = false;
     private static String testTopicId = "";
+
+    void Transactions() {
+        String operatorId = Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID");
+        if (operatorId != null) {
+            OPERATOR_ID = AccountId.fromString(operatorId);
+            OPERATOR_KEY = Ed25519PrivateKey.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_KEY"));
+        }
+    }
 
     /** sets up data for unit testing
      *
@@ -52,7 +60,6 @@ public final class Transactions {
      * @param operatorId:   The operator Id to use for test purposes
      * @param operatorKey:  The operator Key to use for test purposes
      */
-
     public static void setTestData(String topicId, String operatorId, Ed25519PrivateKey operatorKey) {
         testing = true;
         testTopicId = topicId;
