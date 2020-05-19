@@ -39,14 +39,18 @@ public final class HCSToken
 
         if (args.length == 0) {
             System.out.println("Missing command line arguments, valid commands are (note, not case sensitive)");
+            // operations
             System.out.println("  construct {name} {symbol} {decimals}");
             System.out.println("  transfer {address} {quantity}");
             System.out.println("  mint {quantity}");
+            System.out.println("  approve {spender} {amount}");
+            // queries
             System.out.println("  balanceOf {address}");
             System.out.println("  totalSupply");
             System.out.println("  name");
             System.out.println("  decimals");
             System.out.println("  symbol");
+            System.out.println("  allowance {owner} {spender}");
             System.out.println();
             System.out.println("  join {topicId}");
             System.out.println("  genkey - generates a key pair");
@@ -75,6 +79,10 @@ public final class HCSToken
             case "TRANSFER":
                 // transfer {address} {quantity}
                 Transactions.transfer(token, args[1], Long.parseLong(args[2]));
+                break;
+            case "APPROVE":
+                // approve {spender} {amount}
+                Transactions.approve(token, args[1], Long.parseLong(args[2]));
                 break;
             case "JOIN":
                 // join {topicId}
@@ -110,6 +118,15 @@ public final class HCSToken
             case "SYMBOL":
                 // symbol
                 System.out.println("Token Symbol : " + token.getSymbol());
+                break;
+            case "ALLOWANCE":
+                // allowance {owner} {spender}
+                Address owner = token.getAddress(args[1]);
+                if (owner == null) {
+                    System.out.println("Invalid spender address.");
+                } else {
+                    System.out.println("Allowance is: " + owner.getAllowance(args[2]));
+                }
                 break;
             // utilities
             case "REFRESH":

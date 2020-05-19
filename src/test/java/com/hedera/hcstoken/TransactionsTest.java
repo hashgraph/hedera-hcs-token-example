@@ -128,4 +128,24 @@ public class TransactionsTest extends AbstractTestData {
         Assertions.assertArrayEquals(signature, primitive.getSignature().toByteArray());
         Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getPublicKey());
     }
+
+    @Test
+    public void testApprove() throws Exception {
+        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Token token = new Token();
+
+        Approve approve = Approve.newBuilder()
+                .setFromAddress(this.operatorKey.publicKey.toString())
+                .setSpender(this.pubKeyOther)
+                .setAmount(this.approveAmount)
+                .build();
+
+        byte[] signature = this.operatorKey.sign(approve.toByteArray());
+
+        Primitive primitive = Transactions.approve(token, this.pubKeyOther, this.approveAmount);
+
+        Assertions.assertArrayEquals(approve.toByteArray(), primitive.getApprove().toByteArray());
+        Assertions.assertArrayEquals(signature, primitive.getSignature().toByteArray());
+        Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getPublicKey());
+    }
 }

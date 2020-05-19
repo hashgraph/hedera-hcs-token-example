@@ -20,8 +20,13 @@ package com.hedera.hcstoken.state;
  * ‍
  */
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import javax.print.attribute.HashPrintJobAttributeSet;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AddressTest extends AbstractTestData{
 
@@ -41,6 +46,49 @@ public class AddressTest extends AbstractTestData{
 
         address.setOwner(true);
         Assertions.assertTrue(address.isOwner());
-
     }
+
+    @Test
+    public void testAddressAllowances() throws Exception {
+        Address address = new Address(this.firstPublicKey);
+
+        long allowance = 10;
+
+        Map<String, Long> allowances = new HashMap<String, Long>();
+        allowances.put(this.secondPublicKey, allowance);
+        Assertions.assertEquals(0, address.getAllowances().size());
+        address.setAllowances(allowances);
+        Assertions.assertEquals(1, address.getAllowances().size());
+
+        Assertions.assertEquals(allowance, address.getAllowance(this.secondPublicKey));
+        Assertions.assertEquals(0, address.getAllowance("unknown"));
+
+        // try adding again
+        try {
+            address.addAllowance(this.secondPublicKey, allowance);
+            Assertions.fail("Should not have allowed duplicate allowance");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("This address is already added to allowances"));
+        }
+
+        // try adding self
+        try {
+            address.addAllowance(this.firstPublicKey, 10L);
+            Assertions.fail("Should not have allowed self allowance");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("Cannot add self to allowances"));
+        }
+
+        // try setting allowances with self included
+        allowances = new HashMap<String, Long>();
+        allowances.put(this.firstPublicKey, 10L);
+        allowances.put(this.secondPublicKey, 10L);
+        try {
+            address.setAllowances(allowances);
+            Assertions.fail("Should not have allowed allowances to be set with self included");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("Cannot add self to allowances"));
+        }
+    }
+
 }

@@ -166,4 +166,39 @@ public class PrimitivesTest extends AbstractTestData {
             Assertions.assertTrue(e.getMessage().contains("Transfer - Insufficient balance"));
         }
     }
+
+    @Test
+    public void testApprove() throws Exception {
+        Token token = new Token();
+        Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
+        Primitives.mint(token, this.pubKeyOwner, this.quantity);
+
+        // approve from unknown address
+        try {
+            Primitives.approve(token, "unknown from address", this.pubKeyOther, 1);
+            Assertions.fail("Should throw exception when approving an unknown address");
+        } catch(Exception e){
+            Assertions.assertTrue(e.getMessage().contains("Approve - from address unknown"));
+        }
+
+        // approve null/empty sender address
+        try {
+            Primitives.approve(token, this.pubKeyOwner, null, 1);
+            Assertions.fail("Should throw exception when approving an empty address");
+        } catch(Exception e){
+            Assertions.assertTrue(e.getMessage().contains("Approve - spender address is empty"));
+        }
+
+        try {
+            Primitives.approve(token, this.pubKeyOwner, "", 1);
+            Assertions.fail("Should throw exception when approving an empty address");
+        } catch(Exception e){
+            Assertions.assertTrue(e.getMessage().contains("Approve - spender address is empty"));
+        }
+
+        Primitives.approve(token, this.pubKeyOwner, this.pubKeyOther, this.approveAmount);
+        Assertions.assertEquals(1, token.getAddress(this.pubKeyOwner).getAllowances().size());
+        Assertions.assertEquals(this.approveAmount, token.getAddress(this.pubKeyOwner).getAllowance(this.pubKeyOther));
+
+    }
 }
