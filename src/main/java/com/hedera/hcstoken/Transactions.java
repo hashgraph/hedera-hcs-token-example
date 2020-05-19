@@ -39,10 +39,33 @@ import java.util.Objects;
  * It is invoked by the HCSErc20 class following command line inputs
  */
 public final class Transactions {
-    private static final AccountId OPERATOR_ID = AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID")));
-    private static final Ed25519PrivateKey OPERATOR_KEY = Ed25519PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
+    private static AccountId OPERATOR_ID;
+    private static Ed25519PrivateKey OPERATOR_KEY;
     private static final Client client = Client.forTestnet();
 
+    private static boolean testing = false;
+    private static String testTopicId = "";
+
+    void Transactions() {
+        String operatorId = Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID");
+        if (operatorId != null) {
+            OPERATOR_ID = AccountId.fromString(operatorId);
+            OPERATOR_KEY = Ed25519PrivateKey.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_KEY"));
+        }
+    }
+
+    /** sets up data for unit testing
+     *
+     * @param topicId:      The topic Id to use for test purposes
+     * @param operatorId:   The operator Id to use for test purposes
+     * @param operatorKey:  The operator Key to use for test purposes
+     */
+    public static void setTestData(String topicId, String operatorId, Ed25519PrivateKey operatorKey) {
+        testing = true;
+        testTopicId = topicId;
+        OPERATOR_ID = AccountId.fromString(operatorId);
+        OPERATOR_KEY = operatorKey;
+    }
     /**
      * Constructs a token (similar to an ERC20 token construct function)
      *
@@ -52,18 +75,22 @@ public final class Transactions {
      * @param decimals: The number of decimals for this token
      * @throws Exception
      */
-    public static void construct(Token token, String name, String symbol, int decimals) throws Exception {
+    public static Primitive construct(Token token, String name, String symbol, int decimals) throws Exception {
 
         if (token.getTopicId().isEmpty()) {
-            client.setOperator(OPERATOR_ID, OPERATOR_KEY);
-            TransactionId transactionId = new ConsensusTopicCreateTransaction()
-                    .execute(client);
+            if (testing) {
+                token.setTopicId(testTopicId);
+            } else {
+                client.setOperator(OPERATOR_ID, OPERATOR_KEY);
+                TransactionId transactionId = new ConsensusTopicCreateTransaction()
+                        .execute(client);
 
-            final ConsensusTopicId topicId = transactionId.getReceipt(client).getConsensusTopicId();
-            System.out.println("New topic created: " + topicId);
+                final ConsensusTopicId topicId = transactionId.getReceipt(client).getConsensusTopicId();
+                System.out.println("New topic created: " + topicId);
 
-            // create a new topic Id
-            token.setTopicId(topicId.toString());
+                // create a new topic Id
+                token.setTopicId(topicId.toString());
+            }
 
             Construct construct = Construct.newBuilder()
                     .setName(name)
@@ -78,10 +105,12 @@ public final class Transactions {
                     .setSignature(ByteString.copyFrom(signature))
                     .setPublicKey(OPERATOR_KEY.publicKey.toString())
                     .build();
-
             HCSSend(token, primitive);
+            return primitive;
         } else {
-            System.out.println("Topic ID is already set, you cannot overwrite - exiting");
+            String error = "Topic ID is already set, you cannot overwrite";
+            System.out.println(error);
+            throw new Exception(error);
         }
     }
 
@@ -92,10 +121,11 @@ public final class Transactions {
      * @param address:  The address to add
      * @throws Exception
      */
-    public static void join(Token token, String address) throws Exception {
+    public static Primitive join(Token token, String address) throws Exception {
         if (address.isEmpty()) {
-            System.out.println("Cannot join with an empty address");
-            return;
+            String error = "Cannot join with an empty address";
+            System.out.println(error);
+            throw new Exception(error);
         }
         client.setOperator(OPERATOR_ID, OPERATOR_KEY);
         Join join = Join.newBuilder()
@@ -111,6 +141,7 @@ public final class Transactions {
                 .build();
 
         HCSSend(token, primitive);
+        return primitive;
     }
 
     /**
@@ -120,7 +151,7 @@ public final class Transactions {
      * @param quantity: The amount to mint
      * @throws Exception
      */
-    public static void mint(Token token, long quantity) throws Exception {
+    public static Primitive mint(Token token, long quantity) throws Exception {
         if (token.getTotalSupply() == 0) {
             Mint mint = Mint.newBuilder()
                     .setAddress(OPERATOR_KEY.publicKey.toString())
@@ -134,10 +165,13 @@ public final class Transactions {
                     .setSignature(ByteString.copyFrom(signature))
                     .setPublicKey(OPERATOR_KEY.publicKey.toString())
                     .build();
-            HCSSend(token, primitive);
 
+            HCSSend(token, primitive);
+            return primitive;
         } else {
-            System.out.println("Token already minted - exiting");
+            String error = "Token already minted";
+            System.out.println(error);
+            throw new Exception(error);
         }
     }
 
@@ -149,7 +183,7 @@ public final class Transactions {
      * @param quantity: The quantity to transfer
      * @throws Exception
      */
-    public static void transfer(Token token, String address, long quantity) throws Exception {
+    public static Primitive transfer(Token token, String address, long quantity) throws Exception {
         Transfer transfer = Transfer.newBuilder()
                 .setToAddress(address)
                 .setFromAddress(OPERATOR_KEY.publicKey.toString())
@@ -158,13 +192,13 @@ public final class Transactions {
 
         byte[] signature = OPERATOR_KEY.sign(transfer.toByteArray());
 
-
         Primitive primitive = Primitive.newBuilder()
                 .setTransfer(transfer)
                 .setSignature(ByteString.copyFrom(signature))
                 .setPublicKey(OPERATOR_KEY.publicKey.toString())
                 .build();
         HCSSend(token, primitive);
+        return primitive;
     }
 
     /**
@@ -176,6 +210,9 @@ public final class Transactions {
      */
     private static void HCSSend(Token token, Primitive primitive) throws Exception {
         client.setOperator(OPERATOR_ID, OPERATOR_KEY);
+        if (testing) {
+            return;
+        }
         new ConsensusMessageSubmitTransaction()
                 .setTopicId(ConsensusTopicId.fromString(token.getTopicId()))
                 .setMessage(primitive.toByteArray())

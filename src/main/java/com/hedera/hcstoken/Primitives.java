@@ -45,7 +45,9 @@ public final class Primitives {
             Address address = token.addAddress(ownerAddress);
             address.setOwner(true);
         } else {
-            System.out.println("Construct - Token already constructed");
+            String error = "Construct - Token already constructed";
+            System.out.println(error);
+            throw new Exception(error);
         }
     }
     /**
@@ -53,12 +55,15 @@ public final class Primitives {
      * @param token: the token object
      * @param address: the address of the token's owner
      * @param quantity: the quantity to mint
+     * @throws Exception: in the event of an error
      */
-    public static void mint(Token token, String address, long quantity) {
+    public static void mint(Token token, String address, long quantity) throws Exception {
         System.out.println(String.format("Processing mirror notification - mint %s %d", address, quantity));
         // check the initiator is the owner
         if ( ! isOwner(token, address) )  {
-            System.out.println("Address is not token owner's address");
+            String error = "Address is not token owner's address";
+            System.out.println(error);
+            throw new Exception(error);
         } else {
             if (token.getTotalSupply() == 0) {
                 // TODO: Switch to BigInteger for supply and addresses ?
@@ -67,7 +72,9 @@ public final class Primitives {
                 Address ownerAddress = token.getAddress(address);
                 ownerAddress.setBalance(tokenSupply);
             } else {
-                System.out.println("Mint - Token already minted");
+                String error = "Mint - Token already minted";
+                System.out.println(error);
+                throw new Exception(error);
             }
         }
     }
@@ -77,17 +84,22 @@ public final class Primitives {
      * @param fromAddress: the address to transfer to
      * @param toAddress: the address to transfer to
      * @param quantity: the quantity to transfer
+     * @throws Exception: in the event of an error
      */
-    public static void transfer(Token token, String fromAddress, String toAddress, long quantity) {
+    public static void transfer(Token token, String fromAddress, String toAddress, long quantity) throws Exception {
         final Address senderAddress = token.getAddress(fromAddress);
         Address recipientAddress = token.getAddress(toAddress);
 
         System.out.println(String.format("Processing mirror notification - transfer from (%s) to (%s) %d", fromAddress, toAddress, quantity));
 
         if (!isKnownAddress(token, fromAddress)) {
-            System.out.println("Transfer - Unknown address, please join first");
-        } else if (senderAddress == null) {
-            System.out.println("Transfer - Sender address is empty");
+            String error = "Transfer - from address unknown";
+            System.out.println(error);
+            throw new Exception(error);
+        } else if ((toAddress == null) || (toAddress.isEmpty())) {
+            String error = "Transfer - to address is empty";
+            System.out.println(error);
+            throw new Exception(error);
         } else {
             if (recipientAddress == null) {
                 // If toAddress is unknown, add it
@@ -103,7 +115,9 @@ public final class Primitives {
                 senderAddress.setBalance(senderAddress.getBalance() - quantity);
                 recipientAddress.setBalance(recipientAddress.getBalance() + quantity);
             } else {
-                System.out.println("Transfer - Insufficient balance");
+                String error = "Transfer - Insufficient balance";
+                System.out.println(error);
+                throw new Exception(error);
             }
         }
     }
@@ -111,13 +125,16 @@ public final class Primitives {
      * Adds an address to the App Net by adding it to the address book
      * @param token: the token object
      * @param address: the address wanting to join the network
+     * @throws Exception: in the event of an error
      */
-    public static void join(Token token, String address) {
+    public static void join(Token token, String address) throws Exception {
         System.out.println(String.format("Processing mirror notification - join %s", address));
         if (token.getAddress(address) == null) {
             token.addAddress(address);
         } else {
-            System.out.println("Address " + address + " already part of the App Net");
+            String error = "Address " + address + " already part of the App Net";
+            System.out.println(error);
+            throw new Exception(error);
         }
     }
 

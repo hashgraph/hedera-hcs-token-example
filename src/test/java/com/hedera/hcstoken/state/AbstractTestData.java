@@ -1,4 +1,4 @@
-package com.hedera;
+package com.hedera.hcstoken.state;
 
 /*-
  * ‌
@@ -20,39 +20,17 @@ package com.hedera;
  * ‍
  */
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import com.hedera.hashgraph.sdk.crypto.ed25519.Ed25519PrivateKey;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
-
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
+public abstract class AbstractTestData {
+    final long balance = 10;
+    final String firstPublicKey = Ed25519PrivateKey.generate().publicKey.toString();
+    final String secondPublicKey = Ed25519PrivateKey.generate().publicKey.toString();
+    final long totalSupply = 1000;
+    final String symbol = "TTT";
+    final String name = "TestToken";
+    final int decimals = 8;
+    final long lastConsensusSeconds = 1589301202;
+    final int lastConsensusNanos = 955026000;
+    final String topicId = "0.0.43342";
 }

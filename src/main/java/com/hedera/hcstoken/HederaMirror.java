@@ -31,13 +31,12 @@ import org.bouncycastle.math.ec.rfc8032.Ed25519;
 import proto.*;
 
 import java.time.Instant;
-import java.util.Objects;
 
 /**
  * Subscribes to a mirror node and handles notifications
  */
 public final class HederaMirror {
-    private static final String MIRROR_NODE_ADDRESS = Objects.requireNonNull(Dotenv.load().get("MIRROR_NODE_ADDRESS"));
+    private static final String MIRROR_NODE_ADDRESS = Dotenv.configure().ignoreIfMissing().load().get("MIRROR_NODE_ADDRESS");
     private static final MirrorClient mirrorClient = new MirrorClient(MIRROR_NODE_ADDRESS);
 
     /**

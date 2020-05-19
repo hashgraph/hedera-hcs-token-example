@@ -26,7 +26,6 @@ import com.hedera.hcstoken.state.Token;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.File;
-import java.util.Objects;
 
 /**
  * This class handles the persistence of the token data
@@ -34,14 +33,23 @@ import java.util.Objects;
  * typically use a database for this purpose
  */
 public final class Persistence {
-    private static final String fileName = AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID"))).toString() + ".json";
     /**
      * Loads token data from a file
      * @throws Exception: in the event of an error
      */
     public static Token loadToken() throws Exception {
+        final String fileName = AccountId.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID")).toString() + ".json";
         Token token = new Token();
         File stateFile = new File(fileName);
+        return loadToken(stateFile);
+    }
+    /**
+     * Loads token data from a file
+     * This is for unit testing purposes, should call loadToken() otherwise
+     * @throws Exception: in the event of an error
+     */
+    public static Token loadToken(File stateFile) throws Exception {
+        Token token = new Token();
         if (stateFile.exists()) {
             // a file containing existing state exists, let's load it
             ObjectMapper objectMapper = new ObjectMapper();
@@ -54,8 +62,18 @@ public final class Persistence {
      * @throws Exception: in the event of an error
      */
     public static void saveToken(Token token) throws Exception {
+        final String fileName = AccountId.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID")).toString() + ".json";
         ObjectMapper objectMapper = new ObjectMapper();
         File stateFile = new File(fileName);
+        saveToken(token, stateFile);
+    }
+    /**
+     * Saves token data to a file
+     * This is for unit testing purposes, should call saveToken() otherwise
+     * @throws Exception: in the event of an error
+     */
+    public static void saveToken(Token token, File stateFile) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.writeValue(stateFile, token);
     }
 }
