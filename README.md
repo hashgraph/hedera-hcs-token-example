@@ -1,5 +1,5 @@
 [![CircleCI](https://circleci.com/gh/hashgraph/hedera-hcs-token-example.svg?style=shield)](https://circleci.com/gh/hashgraph/hedera-hcs-token-example)
-[![codecov](https://codecov.io/gh/hedera-hcs-token-example/branch/master/graph/badge.svg)](https://codecov.io/gh/hashgraph/hedera-hcs-token-example)
+[![codecov](https://codecov.io/gh/hashgraph/hedera-hcs-token-example/branch/master/graph/badge.svg)](https://codecov.io/gh/hashgraph/hedera-hcs-token-example)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # HCS Token
