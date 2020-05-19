@@ -22,106 +22,148 @@ package com.hedera.hcstoken;
 
 import com.hedera.hcstoken.state.Address;
 import com.hedera.hcstoken.state.Token;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.*;
 
-import java.io.File;
+public class PrimitivesTest extends AbstractTestData {
 
-public class PrimitivesTest
-    extends TestCase
-{
-
-    private final String topicId = "0.0.43342";
-    private final long totalSupply = 1000;
-    private final String symbol = "TTT";
-    private final String name = "TestToken";
-    private final int decimals = 8;
-    private final long lastConsensusSeconds = 1589301202;
-    private final int lastConsensusNanos = 955026000;
-
-    private final String pubKeyOwner = "302a300506032b65700321006e42135c6c7c9162a5f96f6d693677742fd0b3f160e1168cc28f2dadaa9e79cc";
-    private final long ownerBalance = 980;
-
-    private final String pubKeyOther = "302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232";
-    private final long otherBalance = 20;
-
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public PrimitivesTest(String testName )
-    {
-        super( testName );
-    }
-
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( PrimitivesTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
+    @Test
     public void testConstruct() throws Exception {
 
         Token token = new Token();
 
-        Primitives.construct(token, pubKeyOwner, name, symbol, decimals);
+        Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
 
-        assertEquals(name, token.getName());
-        assertEquals(symbol, token.getSymbol());
-        assertEquals(decimals, token.getDecimals());
+        Assertions.assertEquals(this.name, token.getName());
+        Assertions.assertEquals(this.symbol, token.getSymbol());
+        Assertions.assertEquals(this.decimals, token.getDecimals());
 
-        Address ownerAddress = token.getAddress(pubKeyOwner);
-        assertEquals(pubKeyOwner, ownerAddress.getPublicKey());
-        assertEquals(0, ownerAddress.getBalance());
-        assertTrue(ownerAddress.isOwner());
+        Address ownerAddress = token.getAddress(this.pubKeyOwner);
+        Assertions.assertEquals(this.pubKeyOwner, ownerAddress.getPublicKey());
+        Assertions.assertEquals(0, ownerAddress.getBalance());
+        Assertions.assertTrue(ownerAddress.isOwner());
 
         try {
-            Primitives.construct(token, pubKeyOwner, name, symbol, decimals);
-            fail("Should throw exception when constructing an existing token");
+            Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
+            Assertions.fail("Should throw exception when constructing an existing token");
         } catch(Exception e){
-            assertTrue(e.getMessage().contains("Construct - Token already constructed"));
+            Assertions.assertTrue(e.getMessage().contains("Construct - Token already constructed"));
         }
     }
 
+    @Test
     public void testMint() throws Exception {
 
         Token token = new Token();
 
-        Primitives.construct(token, pubKeyOwner, name, symbol, decimals);
+        Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
 
         // mint with the wrong owner address
         try {
-            Primitives.mint(token, pubKeyOther, 10);
-            fail("Should throw exception when minting with the wrong owner address");
+            Primitives.mint(token, this.pubKeyOther, this.quantity);
+            Assertions.fail("Should throw exception when minting with the wrong owner address");
         } catch(Exception e){
-            assertTrue(e.getMessage().contains("Address is not token owner's address"));
+            Assertions.assertTrue(e.getMessage().contains("Address is not token owner's address"));
         }
 
-        long quantity = 100;
+        Primitives.mint(token, this.pubKeyOwner, this.quantity);
+        Assertions.assertEquals(this.name, token.getName());
+        Assertions.assertEquals(this.symbol, token.getSymbol());
+        Assertions.assertEquals(this.decimals, token.getDecimals());
 
-        Primitives.mint(token, pubKeyOwner, 100);
-        assertEquals(name, token.getName());
-        assertEquals(symbol, token.getSymbol());
-        assertEquals(decimals, token.getDecimals());
+        long tokenSupply = this.quantity * (10 ^ token.getDecimals());
+        Assertions.assertEquals(tokenSupply, token.getTotalSupply());
 
-        long tokenSupply = quantity * (10 ^ token.getDecimals());
-        assertEquals(tokenSupply, token.getTotalSupply());
-
-        Address ownerAddress = token.getAddress(pubKeyOwner);
-        assertEquals(tokenSupply, ownerAddress.getBalance());
+        Address ownerAddress = token.getAddress(this.pubKeyOwner);
+        Assertions.assertEquals(tokenSupply, ownerAddress.getBalance());
 
         try {
-            Primitives.mint(token, pubKeyOwner, 10);
-            fail("Should throw exception when minting already minted token");
+            Primitives.mint(token, this.pubKeyOwner, this.quantity);
+            Assertions.fail("Should throw exception when minting already minted token");
         } catch(Exception e){
-            assertTrue(e.getMessage().contains("Mint - Token already minted"));
+            Assertions.assertTrue(e.getMessage().contains("Mint - Token already minted"));
+        }
+    }
+
+    @Test
+    public void testJoin() throws Exception {
+
+        Token token = new Token();
+        Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
+        Primitives.mint(token, this.pubKeyOwner, this.quantity);
+
+        Assertions.assertEquals(1, token.getAddresses().size());
+
+        Primitives.join(token, this.pubKeyOther);
+
+        Assertions.assertEquals(2, token.getAddresses().size());
+        Assertions.assertNotNull(token.getAddress(this.pubKeyOther));
+        Assertions.assertEquals(0, token.getAddress(this.pubKeyOther).getBalance());
+        Assertions.assertFalse(token.getAddress(this.pubKeyOther).isOwner());
+
+        // join twice
+        try {
+            Primitives.join(token, this.pubKeyOther);
+            Assertions.fail("Should throw exception when joining twice with the same address");
+        } catch(Exception e){
+            Assertions.assertTrue(e.getMessage().contains(" already part of the App Net"));
+            Assertions.assertEquals(2, token.getAddresses().size());
+        }
+    }
+
+    @Test
+    public void testTransfer() throws Exception {
+
+        Token token = new Token();
+        Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
+        Primitives.mint(token, this.pubKeyOwner, this.quantity);
+        Primitives.join(token, this.pubKeyOther);
+
+        // transfer from unknown address
+        try {
+            Primitives.transfer(token, "unknown from address", this.pubKeyOther, 1);
+            Assertions.fail("Should throw exception when transferring from unknown address");
+        } catch(Exception e){
+            Assertions.assertTrue(e.getMessage().contains("Transfer - from address unknown"));
+        }
+
+        // transfer to empty address (null)
+        try {
+            Primitives.transfer(token, this.pubKeyOwner, null, 1);
+            Assertions.fail("Should throw exception when transferring to empty address (null)");
+        } catch(Exception e){
+            Assertions.assertTrue(e.getMessage().contains("Transfer - to address is empty"));
+        }
+
+        // transfer to empty address ("")
+        try {
+            Primitives.transfer(token, this.pubKeyOwner, "", 1);
+            Assertions.fail("Should throw exception when transferring to empty address (\"\")");
+        } catch(Exception e){
+            Assertions.assertTrue(e.getMessage().contains("Transfer - to address is empty"));
+        }
+
+        // transfer to new address
+        String newAddress = "new address";
+        long senderBalance = token.getAddress(this.pubKeyOwner).getBalance();
+
+        Primitives.transfer(token, this.pubKeyOwner, newAddress, this.transferAmount);
+        Assertions.assertEquals(senderBalance - this.transferAmount, token.getAddress(this.pubKeyOwner).getBalance());
+        Assertions.assertEquals(this.transferAmount, token.getAddress(newAddress).getBalance());
+
+        // transfer to existing address
+        senderBalance = token.getAddress(this.pubKeyOwner).getBalance();
+
+        Primitives.transfer(token, this.pubKeyOwner, this.pubKeyOther, this.transferAmount);
+        Assertions.assertEquals(senderBalance - this.transferAmount, token.getAddress(this.pubKeyOwner).getBalance());
+        Assertions.assertEquals(this.transferAmount, token.getAddress(this.pubKeyOther).getBalance());
+
+        // transfer over balance
+        try {
+            long overBalance = token.getAddress(this.pubKeyOwner).getBalance() * 10;
+            Primitives.transfer(token, this.pubKeyOwner, this.pubKeyOther, overBalance);
+            Assertions.fail("Should throw exception when transferring above balance");
+        } catch(Exception e){
+            Assertions.assertTrue(e.getMessage().contains("Transfer - Insufficient balance"));
         }
     }
 }
