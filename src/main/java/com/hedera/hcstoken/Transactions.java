@@ -39,7 +39,7 @@ import java.util.Objects;
  * It is invoked by the HCSErc20 class following command line inputs
  */
 public final class Transactions {
-    private static AccountId OPERATOR_ID = AccountId.fromString(Objects.requireNonNull(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID")));
+    private static AccountId OPERATOR_ID = AccountId.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID"));
     private static Ed25519PrivateKey OPERATOR_KEY = Ed25519PrivateKey.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_KEY"));
     private static final Client client = Client.forTestnet();
 
