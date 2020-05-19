@@ -244,4 +244,55 @@ public class PrimitivesTest extends AbstractTestData {
         Primitives.increaseAllowance(token, this.pubKeyOwner, this.pubKeyOther, this.allowance);
         Assertions.assertEquals(this.approveAmount + this.allowance, token.getAddress(this.pubKeyOwner).getAllowance(this.pubKeyOther));
     }
+
+    @Test
+    public void decreaseAllowancTest() throws Exception {
+        Token token = new Token();
+        Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
+        Primitives.mint(token, this.pubKeyOwner, this.quantity);
+
+        // decrease allowance for an unknown from address
+        try {
+            Primitives.decreaseAllowance(token, "unknown from address", this.pubKeyOther, 1);
+            Assertions.fail("Should throw exception when decreasing allowance for unknown from address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("DecreaseAllowance - from address unknown"));
+        }
+
+        // decrease allowance for an empty spender address
+        try {
+            Primitives.decreaseAllowance(token, this.pubKeyOwner, null, 1);
+            Assertions.fail("Should throw exception when decreasing allowance for unknown spender address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("DecreaseAllowance - spender address is empty"));
+        }
+
+        try {
+            Primitives.decreaseAllowance(token, this.pubKeyOwner, "", 1);
+            Assertions.fail("Should throw exception when decreasing allowance for unknown spender address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("DecreaseAllowance - spender address is empty"));
+        }
+
+        // decrease for not yet approved address
+        try {
+            Primitives.decreaseAllowance(token, this.pubKeyOwner, this.pubKeyOther, 1);
+            Assertions.fail("Should throw exception when decreasing allowance for unapproved spender address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("DecreaseAllowance - spender address is not approved"));
+        }
+
+        // approve and decrease
+        Primitives.approve(token, this.pubKeyOwner, this.pubKeyOther, this.approveAmount);
+        Primitives.decreaseAllowance(token, this.pubKeyOwner, this.pubKeyOther, this.allowance);
+        Assertions.assertEquals(this.approveAmount - this.allowance, token.getAddress(this.pubKeyOwner).getAllowance(this.pubKeyOther));
+
+        // decrease beyond current allowance
+        try {
+            Primitives.decreaseAllowance(token, this.pubKeyOwner, this.pubKeyOther, this.approveAmount);
+            Assertions.fail("Should throw exception when decreasing allowance below 0");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("DecreaseAllowance - decreased allowance below zero"));
+        }
+    }
 }

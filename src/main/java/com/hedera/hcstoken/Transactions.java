@@ -248,6 +248,33 @@ public final class Transactions {
     }
 
     /**
+     * Decrease allowance for an address
+     *
+     * @param token:    The token object
+     * @param spender:  The address to approve
+     * @param substractedValue: The amount to add to the allowance
+     * @throws Exception
+     */
+    public static Primitive decreaseAllowance(Token token, String spender, long substractedValue) throws Exception {
+        setupSDKClient();
+        DecreaseAllowance decreaseAllowance = DecreaseAllowance.newBuilder()
+                .setFromAddress(OPERATOR_KEY.publicKey.toString())
+                .setSpender(spender)
+                .setSubtractedValue(substractedValue)
+                .build();
+
+        byte[] signature = OPERATOR_KEY.sign(decreaseAllowance.toByteArray());
+
+        Primitive primitive = Primitive.newBuilder()
+                .setDecreaseAllowance(decreaseAllowance)
+                .setSignature(ByteString.copyFrom(signature))
+                .setPublicKey(OPERATOR_KEY.publicKey.toString())
+                .build();
+        HCSSend(token, primitive);
+        return primitive;
+    }
+
+    /**
      * Generic method to send a transaction to HCS
      *
      * @param token:     The token object

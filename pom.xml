@@ -121,6 +121,9 @@
                     <systemPropertyVariables>
                         <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
                     </systemPropertyVariables>
+                    <excludes>
+                        <exclude>**/protobuf/java/proto/Primitive.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
