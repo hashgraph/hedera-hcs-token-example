@@ -44,6 +44,7 @@ public final class HCSToken
             System.out.println("  transfer {address} {quantity}");
             System.out.println("  mint {quantity}");
             System.out.println("  approve {spender} {amount}");
+            System.out.println("  increaseAllowance {spender} {addedValue}");
             // queries
             System.out.println("  balanceOf {address}");
             System.out.println("  totalSupply");
@@ -84,6 +85,10 @@ public final class HCSToken
                 // approve {spender} {amount}
                 Transactions.approve(token, args[1], Long.parseLong(args[2]));
                 break;
+            case "INCREASEALLOWANCE":
+                // approve {spender} {addedValue}
+                Transactions.increaseAllowance(token, args[1], Long.parseLong(args[2]));
+                break;
             case "JOIN":
                 // join {topicId}
                 if (token.getTopicId().isEmpty()) {
@@ -123,7 +128,7 @@ public final class HCSToken
                 // allowance {owner} {spender}
                 Address owner = token.getAddress(args[1]);
                 if (owner == null) {
-                    System.out.println("Invalid spender address.");
+                    System.out.println("Invalid owner address.");
                 } else {
                     System.out.println("Allowance is: " + owner.getAllowance(args[2]));
                 }

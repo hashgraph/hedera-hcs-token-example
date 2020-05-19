@@ -114,6 +114,13 @@ public final class HederaMirror {
                     return;
                 }
                 Primitives.approve(token, approve.getFromAddress(), approve.getSpender(), approve.getAmount());
+            } else if (primitive.hasIncreaseAllowance()) {
+                IncreaseAllowance increaseAllowance = primitive.getIncreaseAllowance();
+                if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, increaseAllowance.toByteArray(), 0, increaseAllowance.toByteArray().length)) {
+                    System.out.println("Signature verification on message failed");
+                    return;
+                }
+                Primitives.increaseAllowance(token, increaseAllowance.getFromAddress(), increaseAllowance.getSpender(), increaseAllowance.getAddedValue());
             } else {
                 System.out.println("Unable to process mirror notification - unknown primitive");
             }

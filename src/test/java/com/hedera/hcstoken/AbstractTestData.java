@@ -44,6 +44,7 @@ public abstract class AbstractTestData {
     final long quantity = 1000;
     final long transferAmount = 10;
     final long approveAmount = 10;
+    final long allowance = 20;
 
     final String operatorId = "0.0.999";
     final Ed25519PrivateKey operatorKey = Ed25519PrivateKey.generate();

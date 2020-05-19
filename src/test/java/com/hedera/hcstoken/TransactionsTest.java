@@ -20,6 +20,7 @@ package com.hedera.hcstoken;
  * ‍
  */
 
+import com.google.protobuf.ByteString;
 import com.hedera.hcstoken.state.Token;
 import org.junit.jupiter.api.*;
 import proto.*;
@@ -43,8 +44,7 @@ public class TransactionsTest extends AbstractTestData {
         byte[] signature = operatorKey.sign(construct.toByteArray());
 
         Assertions.assertArrayEquals(construct.toByteArray(), primitive.getConstruct().toByteArray());
-        Assertions.assertArrayEquals(signature, primitive.getSignature().toByteArray());
-        Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getPublicKey());
+        checkSigAndKey(signature, primitive);
 
         // construct again, should fail
         try {
@@ -77,8 +77,7 @@ public class TransactionsTest extends AbstractTestData {
         Primitive primitive = Transactions.join(token, this.pubKeyOther);
 
         Assertions.assertArrayEquals(join.toByteArray(), primitive.getJoin().toByteArray());
-        Assertions.assertArrayEquals(signature, primitive.getSignature().toByteArray());
-        Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getPublicKey());
+        checkSigAndKey(signature, primitive);
     }
 
     @Test
@@ -96,8 +95,7 @@ public class TransactionsTest extends AbstractTestData {
         Primitive primitive = Transactions.mint(token, this.quantity);
 
         Assertions.assertArrayEquals(mint.toByteArray(), primitive.getMint().toByteArray());
-        Assertions.assertArrayEquals(signature, primitive.getSignature().toByteArray());
-        Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getPublicKey());
+        checkSigAndKey(signature, primitive);
 
         // mint again for error
         try {
@@ -125,8 +123,7 @@ public class TransactionsTest extends AbstractTestData {
         Primitive primitive = Transactions.transfer(token, this.pubKeyOther, this.quantity);
 
         Assertions.assertArrayEquals(transfer.toByteArray(), primitive.getTransfer().toByteArray());
-        Assertions.assertArrayEquals(signature, primitive.getSignature().toByteArray());
-        Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getPublicKey());
+        checkSigAndKey(signature, primitive);
     }
 
     @Test
@@ -145,6 +142,29 @@ public class TransactionsTest extends AbstractTestData {
         Primitive primitive = Transactions.approve(token, this.pubKeyOther, this.approveAmount);
 
         Assertions.assertArrayEquals(approve.toByteArray(), primitive.getApprove().toByteArray());
+        checkSigAndKey(signature, primitive);
+    }
+
+    @Test
+    public void testIncreaseAllowance() throws Exception {
+        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Token token = new Token();
+
+        IncreaseAllowance increaseAllowance = IncreaseAllowance.newBuilder()
+                .setFromAddress(this.operatorKey.publicKey.toString())
+                .setSpender(this.pubKeyOther)
+                .setAddedValue(this.allowance)
+                .build();
+
+        byte[] signature = this.operatorKey.sign(increaseAllowance.toByteArray());
+
+        Primitive primitive = Transactions.increaseAllowance(token, this.pubKeyOther, this.allowance);
+
+        Assertions.assertArrayEquals(increaseAllowance.toByteArray(), primitive.getIncreaseAllowance().toByteArray());
+        checkSigAndKey(signature, primitive);
+    }
+
+    private void checkSigAndKey(byte[] signature, Primitive primitive) {
         Assertions.assertArrayEquals(signature, primitive.getSignature().toByteArray());
         Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getPublicKey());
     }

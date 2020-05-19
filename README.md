@@ -220,6 +220,15 @@ This queries local state and returns the current allowance for a given pair of a
 java -jar hcs-token-example-1.0-run.jar allowance 302a300506032b65700321006e42135c6c7c9162a5f96f6d693677742fd0b3f160e1168cc28f2dadaa9e79cc 302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232
 ```
 
+### Increase Allowance
+
+This constructs a HCS transaction to increase the allowance for a given address.
+When the notification is received (`refresh`), the allowance for the `spender` address is increased accordingly.
+
+```shell script
+java -jar hcs-token-example-1.0-run.jar increaseAllowance 302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232 20
+```
+
 ## Acting as another user
 
 If you would like to pretend to be another user (or node) of the App Net, you will need to:

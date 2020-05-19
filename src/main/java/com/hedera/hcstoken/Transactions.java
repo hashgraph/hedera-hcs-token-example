@@ -221,6 +221,33 @@ public final class Transactions {
     }
 
     /**
+     * Increase allowance for an address
+     *
+     * @param token:    The token object
+     * @param spender:  The address to approve
+     * @param addedValue: The amount to add to the allowance
+     * @throws Exception
+     */
+    public static Primitive increaseAllowance(Token token, String spender, long addedValue) throws Exception {
+        setupSDKClient();
+        IncreaseAllowance increaseAllowance = IncreaseAllowance.newBuilder()
+                .setFromAddress(OPERATOR_KEY.publicKey.toString())
+                .setSpender(spender)
+                .setAddedValue(addedValue)
+                .build();
+
+        byte[] signature = OPERATOR_KEY.sign(increaseAllowance.toByteArray());
+
+        Primitive primitive = Primitive.newBuilder()
+                .setIncreaseAllowance(increaseAllowance)
+                .setSignature(ByteString.copyFrom(signature))
+                .setPublicKey(OPERATOR_KEY.publicKey.toString())
+                .build();
+        HCSSend(token, primitive);
+        return primitive;
+    }
+
+    /**
      * Generic method to send a transaction to HCS
      *
      * @param token:     The token object
