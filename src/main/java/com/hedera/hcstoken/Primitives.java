@@ -122,6 +122,31 @@ public final class Primitives {
         }
     }
     /**
+     * Approve spend from another address
+     * @param token: the token object
+     * @param from: the address to add allowance to
+     * @param spender: the address to allow
+     * @param amount: the amount to allow
+     * @throws Exception: in the event of an error
+     */
+    public static void approve(Token token, String from, String spender, long amount) throws Exception {
+        System.out.println(String.format("Processing mirror notification - approve (%s) for %d", spender, amount));
+
+        final Address fromAddress = token.getAddress(from);
+
+        if (!isKnownAddress(token, from)) {
+            String error = "Approve - from address unknown";
+            System.out.println(error);
+            throw new Exception(error);
+        } else if ((spender == null) || (spender.isEmpty())) {
+            String error = "Approve - spender address is empty";
+            System.out.println(error);
+            throw new Exception(error);
+        } else {
+            fromAddress.addAllowance(spender, amount);
+        }
+    }
+    /**
      * Adds an address to the App Net by adding it to the address book
      * @param token: the token object
      * @param address: the address wanting to join the network

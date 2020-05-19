@@ -32,8 +32,6 @@ import com.hedera.hcstoken.state.Token;
 import io.github.cdimascio.dotenv.Dotenv;
 import proto.*;
 
-import java.util.Objects;
-
 /**
  * This class is responsible for constructing and sending messages to HCS
  * It is invoked by the HCSErc20 class following command line inputs
@@ -45,14 +43,6 @@ public final class Transactions {
 
     private static boolean testing = false;
     private static String testTopicId = "";
-
-    void Transactions() {
-        String operatorId = Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID");
-        if (operatorId != null) {
-            OPERATOR_ID = AccountId.fromString(operatorId);
-            OPERATOR_KEY = Ed25519PrivateKey.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_KEY"));
-        }
-    }
 
     /** sets up data for unit testing
      *
@@ -78,10 +68,10 @@ public final class Transactions {
     public static Primitive construct(Token token, String name, String symbol, int decimals) throws Exception {
 
         if (token.getTopicId().isEmpty()) {
+            setupSDKClient();
             if (testing) {
                 token.setTopicId(testTopicId);
             } else {
-                client.setOperator(OPERATOR_ID, OPERATOR_KEY);
                 TransactionId transactionId = new ConsensusTopicCreateTransaction()
                         .execute(client);
 
@@ -127,7 +117,7 @@ public final class Transactions {
             System.out.println(error);
             throw new Exception(error);
         }
-        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
+        setupSDKClient();
         Join join = Join.newBuilder()
                 .setAddress(address)
                 .build();
@@ -153,6 +143,7 @@ public final class Transactions {
      */
     public static Primitive mint(Token token, long quantity) throws Exception {
         if (token.getTotalSupply() == 0) {
+            setupSDKClient();
             Mint mint = Mint.newBuilder()
                     .setAddress(OPERATOR_KEY.publicKey.toString())
                     .setQuantity(quantity)
@@ -184,6 +175,7 @@ public final class Transactions {
      * @throws Exception
      */
     public static Primitive transfer(Token token, String address, long quantity) throws Exception {
+        setupSDKClient();
         Transfer transfer = Transfer.newBuilder()
                 .setToAddress(address)
                 .setFromAddress(OPERATOR_KEY.publicKey.toString())
@@ -202,6 +194,33 @@ public final class Transactions {
     }
 
     /**
+     * Approves spend from another address
+     *
+     * @param token:    The token object
+     * @param spender:  The address to approve
+     * @param amount: The amount to approve
+     * @throws Exception
+     */
+    public static Primitive approve(Token token, String spender, long amount) throws Exception {
+        setupSDKClient();
+        Approve approve = Approve.newBuilder()
+                .setFromAddress(OPERATOR_KEY.publicKey.toString())
+                .setSpender(spender)
+                .setAmount(amount)
+                .build();
+
+        byte[] signature = OPERATOR_KEY.sign(approve.toByteArray());
+
+        Primitive primitive = Primitive.newBuilder()
+                .setApprove(approve)
+                .setSignature(ByteString.copyFrom(signature))
+                .setPublicKey(OPERATOR_KEY.publicKey.toString())
+                .build();
+        HCSSend(token, primitive);
+        return primitive;
+    }
+
+    /**
      * Generic method to send a transaction to HCS
      *
      * @param token:     The token object
@@ -209,7 +228,6 @@ public final class Transactions {
      * @throws Exception: in the event of an error
      */
     private static void HCSSend(Token token, Primitive primitive) throws Exception {
-        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
         if (testing) {
             return;
         }
@@ -218,5 +236,16 @@ public final class Transactions {
                 .setMessage(primitive.toByteArray())
                 .execute(client)
                 .getReceipt(client);
+    }
+
+    /**
+     * Sets up the SDK client, accounting for the possiblity we're running unit tests
+     */
+    private static void setupSDKClient() {
+        if ( ! testing ) {
+            OPERATOR_ID = AccountId.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID"));
+            OPERATOR_KEY = Ed25519PrivateKey.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_KEY"));
+        }
+        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
     }
 }

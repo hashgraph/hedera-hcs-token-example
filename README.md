@@ -201,6 +201,25 @@ _Note: The `from` address is set to the public key derived from the `OPERATOR_KE
 java -jar hcs-token-example-1.0-run.jar transfer 302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232 20
 ```
 
+### Approve 
+
+This constructs a HCS transaction to approve another address as a spender up to a given amount.
+When the notification is received (`refresh`), the spender is added to the list of allowances.
+
+_Note: The `from` address is set to the public key derived from the `OPERATOR_KEY` in the `.env` file._
+
+```shell script
+java -jar hcs-token-example-1.0-run.jar approve 302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232 20
+```
+
+### Allowance 
+
+This queries local state and returns the current allowance for a given pair of addresses
+
+```shell script
+java -jar hcs-token-example-1.0-run.jar allowance 302a300506032b65700321006e42135c6c7c9162a5f96f6d693677742fd0b3f160e1168cc28f2dadaa9e79cc 302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232
+```
+
 ## Acting as another user
 
 If you would like to pretend to be another user (or node) of the App Net, you will need to:
