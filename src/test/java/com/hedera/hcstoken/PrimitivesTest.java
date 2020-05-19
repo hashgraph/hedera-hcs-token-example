@@ -201,4 +201,47 @@ public class PrimitivesTest extends AbstractTestData {
         Assertions.assertEquals(this.approveAmount, token.getAddress(this.pubKeyOwner).getAllowance(this.pubKeyOther));
 
     }
+
+    @Test
+    public void increaseAllowanceTest() throws Exception {
+        Token token = new Token();
+        Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
+        Primitives.mint(token, this.pubKeyOwner, this.quantity);
+
+        // increase allowance for an unknown from address
+        try {
+            Primitives.increaseAllowance(token, "unknown from address", this.pubKeyOther, 1);
+            Assertions.fail("Should throw exception when increasing allowance for unknown from address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("IncreaseAllowance - from address unknown"));
+        }
+
+        // increase allowance for an empty spender address
+        try {
+            Primitives.increaseAllowance(token, this.pubKeyOwner, null, 1);
+            Assertions.fail("Should throw exception when increasing allowance for unknown spender address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("IncreaseAllowance - spender address is empty"));
+        }
+
+        try {
+            Primitives.increaseAllowance(token, this.pubKeyOwner, "", 1);
+            Assertions.fail("Should throw exception when increasing allowance for unknown spender address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("IncreaseAllowance - spender address is empty"));
+        }
+
+        // increase for not yet approved address
+        try {
+            Primitives.increaseAllowance(token, this.pubKeyOwner, this.pubKeyOther, 1);
+            Assertions.fail("Should throw exception when increasing allowance for unapproved spender address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("IncreaseAllowance - spender address is not approved"));
+        }
+
+        // approve and increase
+        Primitives.approve(token, this.pubKeyOwner, this.pubKeyOther, this.approveAmount);
+        Primitives.increaseAllowance(token, this.pubKeyOwner, this.pubKeyOther, this.allowance);
+        Assertions.assertEquals(this.approveAmount + this.allowance, token.getAddress(this.pubKeyOwner).getAllowance(this.pubKeyOther));
+    }
 }
