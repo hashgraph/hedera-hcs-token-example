@@ -20,9 +20,6 @@ package com.hedera.hcstoken;
  * ‍
  */
 
-import com.google.protobuf.ByteString;
-import com.hedera.hashgraph.sdk.crypto.ed25519.Ed25519PrivateKey;
-import com.hedera.hcstoken.state.Address;
 import com.hedera.hcstoken.state.Token;
 import org.junit.jupiter.api.*;
 import proto.*;

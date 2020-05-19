@@ -31,7 +31,6 @@ import org.bouncycastle.math.ec.rfc8032.Ed25519;
 import proto.*;
 
 import java.time.Instant;
-import java.util.Objects;
 
 /**
  * Subscribes to a mirror node and handles notifications
