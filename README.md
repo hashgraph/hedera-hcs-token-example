@@ -74,7 +74,7 @@ Once built, you can try it out with the following commands which will create the
 
 ```shell script
 # construct the token
-java -jar hcs-token-example-1.0-run.jar construct TestToken TTT 8
+java -jar hcs-token-example-1.0-run.jar construct TestToken TTT 2
 # mint the token
 java -jar hcs-token-example-1.0-run.jar mint 1000
 # wait for a mirror update
@@ -107,6 +107,8 @@ _Note: Allow a few seconds after `construct` to run `refresh` to allow the new `
 
 ### Construct
 
+`construct {name} {symbol} {decimals}`
+
 This constructs a HCS transaction to construct the token with a `name`, `symbol` and `decimals`.
 It will automatically create a new `HCS TopicId` and return it to the console, you can communicate this topic Id to others so they can join your App Net.
 This will also be stored in `{your operator id}.json` so that it is remembered by the application.
@@ -118,6 +120,8 @@ java -jar hcs-token-example-1.0-run.jar construct TestToken TTT 8
 ```
 
 ### Join
+
+`join {topicId}`
 
 This sets up an App Net instance to join a particular Token by informing it of the `Topic Id` to use and also sends a HCS transaction to inform other App Net participants of the new user's address, it should be run by anyone wanting to take part in the token.
 
@@ -135,6 +139,8 @@ This can be used to generate a random key pair so that you can use the public ke
 
 ### Mint
 
+`mint {quantity}`
+
 This constructs a HCS transaction to mint the token.
 When the notification is received (`refresh`), the token's `totalSupply` will be set to the amount specified and the `balance` of the public address derived from the `OPERATOR_ID` in `.env` will be set to the same value.
 
@@ -145,14 +151,6 @@ java -jar hcs-token-example-1.0-run.jar mint 1000
 ### Get token name
 
 This returns the name of the token from local state. If this returns empty, you may need to run `refresh`.
- 
-```shell script
-java -jar hcs-token-example-1.0-run.jar name
-```
-
-### Get token name
-
-This returns the `name` of the token from local state. If this returns empty, you may need to run `refresh`.
  
 ```shell script
 java -jar hcs-token-example-1.0-run.jar name
@@ -184,6 +182,8 @@ java -jar hcs-token-example-1.0-run.jar totalSupply
 
 ### Get address balance
 
+`balanceOf {address}`
+
 This returns the `balance` of the specified address from local state. If this returns a value you weren't expecting, you may need to run `refresh`.
  
 ```shell script
@@ -191,6 +191,8 @@ java -jar hcs-token-example-1.0-run.jar balanceOf input_your_public_key_here
 ```
 
 ### Transfer 
+
+`transfer {address} {quantity}`
 
 This constructs a HCS transaction to transfer tokens from one address to another.
 When the notification is received (`refresh`), both addresses' balances are updated.
@@ -203,6 +205,8 @@ java -jar hcs-token-example-1.0-run.jar transfer 302a300506032b65700321009308a43
 
 ### Approve 
 
+`approve {spender} {amount}`
+
 This constructs a HCS transaction to approve another address as a spender up to a given amount.
 When the notification is received (`refresh`), the spender is added to the list of allowances.
 
@@ -214,6 +218,8 @@ java -jar hcs-token-example-1.0-run.jar approve 302a300506032b65700321009308a434
 
 ### Allowance 
 
+`allowance {owner} {spender}`
+
 This queries local state and returns the current allowance for a given pair of addresses
 
 ```shell script
@@ -221,6 +227,8 @@ java -jar hcs-token-example-1.0-run.jar allowance 302a300506032b65700321006e4213
 ```
 
 ### Increase Allowance
+
+`increaseAllowance {spender} {addedValue}`
 
 This constructs a HCS transaction to increase the allowance for a given address.
 When the notification is received (`refresh`), the allowance for the `spender` address is increased accordingly.
@@ -231,6 +239,8 @@ java -jar hcs-token-example-1.0-run.jar increaseAllowance 302a300506032b65700321
 
 ### Decrease Allowance
 
+`decreaseAllowance {spender} {addedValue}`
+
 This constructs a HCS transaction to decrease the allowance for a given address.
 When the notification is received (`refresh`), the allowance for the `spender` address is decreased accordingly.
 
@@ -240,11 +250,24 @@ java -jar hcs-token-example-1.0-run.jar decreaseAllowance 302a300506032b65700321
 
 ### Transfer From
 
+`transferFrom {fromAddress} {toAddress} {amount}`
+
 This constructs a HCS transaction to transfer tokens from an address using an allowance.
 When the notification is received (`refresh`), the balance of the `fromAddress` is deducted `amount`, the balance of `toAddress` is increased by `amount` and finally, the allowance of the operator is deducted `amount`.
  
 ```shell script
 java -jar hcs-token-example-1.0-run.jar transferFrom 302a300506032b65700321006e42135c6c7c9162a5f96f6d693677742fd0b3f160e1168cc28f2dadaa9e79cc 302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232 10
+```
+
+### Burn
+
+`burn {amount}`
+
+This constructs a HCS transaction to burn tokens from the operator's account
+When the notification is received (`refresh`), the balance operator's account is deducted the `amount`.
+ 
+```shell script
+java -jar hcs-token-example-1.0-run.jar burn 302a300506032b65700321006e42135c6c7c9162a5f96f6d693677742fd0b3f160e1168cc28f2dadaa9e79cc 302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232 10
 ```
 
 ## Acting as another user
@@ -279,3 +302,28 @@ At this stage, the file should only contain the created `Topic Id`.
 Then, run a `mint` command and check the state file again, no changes.
 
 Finally, run a `refresh` command to see the state file updated as a result of mirror notifications.
+
+## run.sh
+
+This is sample shell script to run through all the operations, to execute it, first setup two accounts on the Hedera network, then type the following in a command prompt.
+
+```shell script
+export OPERATOR_SECRET_1={input your first account private key}
+export OPERATOR_PUBLIC_1={input your first account public key}
+export OPERATOR_ID_1={input your first account id}
+export OPERATOR_SECRET_2={input your second account private key}
+export OPERATOR_PUBLIC_2={input your second account public key}
+export OPERATOR_ID_2={input your second account id}
+```
+
+if you don't set these variables up, the script will prompt you for them
+
+then
+
+```shell script
+./run.sh
+```
+
+The script will prompt whether you want to rebuild the project (maven).
+Then it will prompt whether to delete local state files (*.json).
+It will finally run through all the supported operations.

@@ -41,6 +41,10 @@ message TransferFrom {
   uint64 amount = 3;
 }
 
+message Burn {
+  uint64 amount = 1;
+}
+
 message Join {
   string address = 1;
 }
@@ -58,5 +62,6 @@ message Primitive {
     IncreaseAllowance increaseAllowance = 8;
     DecreaseAllowance decreaseAllowance = 9;
     TransferFrom transferFrom = 10;
+    Burn burn = 11;
   }
 }

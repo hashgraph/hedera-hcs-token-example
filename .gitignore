@@ -25,6 +25,6 @@ hs_err_pid*
 .idea/
 0.0.*.json
 HCSToken.iml
-run.sh
 target/
 erc20.sol
+run-greg.sh

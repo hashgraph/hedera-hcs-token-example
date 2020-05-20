@@ -67,7 +67,7 @@ public final class Primitives {
         } else {
             if (token.getTotalSupply() == 0) {
                 // TODO: Switch to BigInteger for supply and addresses ?
-                long tokenSupply = quantity * (10 ^ token.getDecimals());
+                long tokenSupply = (long) (quantity * Math.pow(10, token.getDecimals()));
                 token.setTotalSupply(tokenSupply);
                 Address ownerAddress = token.getAddress(address);
                 ownerAddress.setBalance(tokenSupply);
@@ -229,7 +229,6 @@ public final class Primitives {
     public static void transferFrom(Token token, String msgSender, String fromAddress, String toAddress, long amount) throws Exception {
         System.out.println(String.format("Processing mirror notification - transferFrom (%s) to (%s) by %d", fromAddress, toAddress, amount));
 
-        System.out.println("TransferFrom: msgSender " + msgSender);
         final Address fromAddr = token.getAddress(fromAddress);
         final Address senderAddr = token.getAddress(msgSender);
 
@@ -264,6 +263,37 @@ public final class Primitives {
                 System.out.println(error);
                 throw new Exception(error);
             }
+        }
+    }
+
+    /**
+     * Burns tokens from an address
+     * @param token: the token object
+     * @param address: the transaction initiator address
+     * @param amount: the amount to pay
+     * @throws Exception: in the event of an error
+     */
+    public static void burn(Token token, String address, long amount) throws Exception {
+        System.out.println(String.format("Processing mirror notification - burn (%s) amount %d", address, amount));
+
+        final Address fromAddr = token.getAddress(address);
+
+        if (fromAddr == null) {
+            String error = "Burn - unknown address";
+            System.out.println(error);
+            throw new Exception(error);
+        }
+
+        if (fromAddr.getBalance() < amount) {
+            String error = "Burn - amount exceeds balance";
+            System.out.println(error);
+            throw new Exception(error);
+        } else {
+            long newBalance = fromAddr.getBalance() - amount;
+            fromAddr.setBalance(newBalance);
+
+            long newSupply = token.getTotalSupply() - amount;
+            token.setTotalSupply(newSupply);
         }
     }
 
