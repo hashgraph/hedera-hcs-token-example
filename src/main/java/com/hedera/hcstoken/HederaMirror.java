@@ -136,6 +136,13 @@ public final class HederaMirror {
                         return;
                     }
                     Primitives.transferFrom(token, primitive.getPublicKey(), transferFrom.getFromAddress(), transferFrom.getToAddress(), transferFrom.getAmount());
+                } else if (primitive.hasBurn()) {
+                    Burn burn = primitive.getBurn();
+                    if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, burn.toByteArray(), 0, burn.toByteArray().length)) {
+                        System.out.println("Signature verification on message failed");
+                        return;
+                    }
+                    Primitives.burn(token, primitive.getPublicKey(), burn.getAmount());
                 } else {
                     System.out.println("Unable to process mirror notification - unknown primitive");
                 }

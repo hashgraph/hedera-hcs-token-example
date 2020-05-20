@@ -299,6 +299,30 @@ public final class Transactions {
     }
 
     /**
+     * Burns tokens from an address
+     *
+     * @param token:    The token object
+     * @param amount: The amount to burn
+     * @throws Exception
+     */
+    public static Primitive burn(Token token, long amount) throws Exception {
+        setupSDKClient();
+        Burn burn = Burn.newBuilder()
+                .setAmount(amount)
+                .build();
+
+        byte[] signature = OPERATOR_KEY.sign(burn.toByteArray());
+
+        Primitive primitive = Primitive.newBuilder()
+                .setBurn(burn)
+                .setSignature(ByteString.copyFrom(signature))
+                .setPublicKey(OPERATOR_KEY.publicKey.toString())
+                .build();
+        HCSSend(token, primitive);
+        return primitive;
+    }
+
+    /**
      * Generic method to send a transaction to HCS
      *
      * @param token:     The token object

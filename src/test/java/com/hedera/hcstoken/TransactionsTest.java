@@ -198,6 +198,23 @@ public class TransactionsTest extends AbstractTestData {
         checkSigAndKey(signature, primitive);
     }
 
+    @Test
+    public void testBurn() throws Exception {
+        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Token token = new Token();
+
+        Burn burn = Burn.newBuilder()
+                .setAmount(this.burnAmount)
+                .build();
+
+        byte[] signature = this.operatorKey.sign(burn.toByteArray());
+
+        Primitive primitive = Transactions.burn(token, this.burnAmount);
+
+        Assertions.assertArrayEquals(burn.toByteArray(), primitive.getBurn().toByteArray());
+        checkSigAndKey(signature, primitive);
+    }
+
     private void checkSigAndKey(byte[] signature, Primitive primitive) {
         Assertions.assertArrayEquals(signature, primitive.getSignature().toByteArray());
         Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getPublicKey());

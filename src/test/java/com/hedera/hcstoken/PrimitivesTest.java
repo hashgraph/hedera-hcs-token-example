@@ -70,7 +70,7 @@ public class PrimitivesTest extends AbstractTestData {
         Assertions.assertEquals(this.symbol, token.getSymbol());
         Assertions.assertEquals(this.decimals, token.getDecimals());
 
-        long tokenSupply = this.quantity * (10 ^ token.getDecimals());
+        long tokenSupply = (long) (this.quantity * Math.pow(10, token.getDecimals()));
         Assertions.assertEquals(tokenSupply, token.getTotalSupply());
 
         Address ownerAddress = token.getAddress(this.pubKeyOwner);
@@ -303,8 +303,6 @@ public class PrimitivesTest extends AbstractTestData {
         Primitives.mint(token, this.pubKeyOwner, this.quantity);
         Primitives.join(token, this.pubKeyOther);
 
-//        transferFrom(Token token, String msgSender, String fromAddress, String toAddress, long amount) throws Exception {
-        // transferFrom for an unknown sender address
         try {
             Primitives.transferFrom(token, "unknown sender address", this.pubKeyOwner, this.pubKeyOther, 1);
             Assertions.fail("Should throw exception when transferring from an unknown message sender");
@@ -363,5 +361,36 @@ public class PrimitivesTest extends AbstractTestData {
         Assertions.assertEquals(currentOwnerBalance - this.transferAmount, token.getAddress(this.pubKeyOwner).getBalance());
         Assertions.assertEquals(currentOtherBalance + this.transferAmount, token.getAddress(this.pubKeyOther).getBalance());
         Assertions.assertEquals(currentApproval - this.transferAmount, token.getAddress(this.pubKeyOwner).getAllowance(this.pubKeyOther));
+    }
+
+    @Test
+    public void burnTest() throws Exception {
+        Token token = new Token();
+        Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
+        Primitives.mint(token, this.pubKeyOwner, this.quantity);
+
+        // burn unknown address
+        try {
+            Primitives.burn(token, "unknown sender address", 1);
+            Assertions.fail("Should throw exception when burning from an unknown address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("Burn - unknown address"));
+        }
+
+        // burn above balance
+        try {
+            Primitives.burn(token, this.pubKeyOwner, this.totalSupply * 10);
+            Assertions.fail("Should throw exception when burning above balance");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("Burn - amount exceeds balance"));
+        }
+
+        long currentOwnerBalance = token.getAddress(this.pubKeyOwner).getBalance();
+        long currentSupply = token.getTotalSupply();
+
+        Primitives.burn(token, this.pubKeyOwner, this.burnAmount);
+
+        Assertions.assertEquals(currentOwnerBalance - this.burnAmount, token.getAddress(this.pubKeyOwner).getBalance());
+        Assertions.assertEquals(currentSupply - this.burnAmount, token.getTotalSupply());
     }
 }
