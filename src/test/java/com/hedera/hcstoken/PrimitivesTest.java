@@ -246,7 +246,7 @@ public class PrimitivesTest extends AbstractTestData {
     }
 
     @Test
-    public void decreaseAllowancTest() throws Exception {
+    public void decreaseAllowanceTest() throws Exception {
         Token token = new Token();
         Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
         Primitives.mint(token, this.pubKeyOwner, this.quantity);
@@ -294,5 +294,74 @@ public class PrimitivesTest extends AbstractTestData {
         } catch (Exception e) {
             Assertions.assertTrue(e.getMessage().contains("DecreaseAllowance - decreased allowance below zero"));
         }
+    }
+
+    @Test
+    public void transferFromTest() throws Exception {
+        Token token = new Token();
+        Primitives.construct(token, this.pubKeyOwner, this.name, this.symbol, this.decimals);
+        Primitives.mint(token, this.pubKeyOwner, this.quantity);
+        Primitives.join(token, this.pubKeyOther);
+
+//        transferFrom(Token token, String msgSender, String fromAddress, String toAddress, long amount) throws Exception {
+        // transferFrom for an unknown sender address
+        try {
+            Primitives.transferFrom(token, "unknown sender address", this.pubKeyOwner, this.pubKeyOther, 1);
+            Assertions.fail("Should throw exception when transferring from an unknown message sender");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("TransferFrom - operation initiator unknown"));
+        }
+
+        // transferFrom for an unknown from address
+        try {
+            Primitives.transferFrom(token, this.pubKeyOther, "unknown from address", this.pubKeyOther, 1);
+            Assertions.fail("Should throw exception when transferring from an unknown from address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("TransferFrom - from address unknown"));
+        }
+
+        // transferFrom for an empty to address
+        try {
+            Primitives.transferFrom(token, this.pubKeyOther, this.pubKeyOwner,null, 1);
+            Assertions.fail("Should throw exception when transferring from an unknown from address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("TransferFrom - toAddress address is empty"));
+        }
+
+        try {
+            Primitives.transferFrom(token, this.pubKeyOther, this.pubKeyOwner,"", 1);
+            Assertions.fail("Should throw exception when transferring from an unknown from address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("TransferFrom - toAddress address is empty"));
+        }
+
+        // transfer from an unapproved address
+        try {
+            Primitives.transferFrom(token, this.pubKeyOther, this.pubKeyOwner,this.pubKeyOther, 1);
+            Assertions.fail("Should throw exception when transferring from an unapproved  address");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("TransferFrom - operation initiator is not approved"));
+        }
+
+        // approve
+        Primitives.approve(token, this.pubKeyOwner, this.pubKeyOther, this.approveAmount);
+
+        // attempt to transfer more than approved
+        try {
+            Primitives.transferFrom(token, this.pubKeyOther, this.pubKeyOwner,this.pubKeyOther, this.approveAmount * 10);
+            Assertions.fail("Should throw exception when transferring above approved amount");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("TransferFrom - specified amount above approved allowance"));
+        }
+
+        long currentOwnerBalance = token.getAddress(this.pubKeyOwner).getBalance();
+        long currentApproval = token.getAddress(this.pubKeyOwner).getAllowance(this.pubKeyOther);
+        long currentOtherBalance = token.getAddress(this.pubKeyOther).getBalance();
+
+        Primitives.transferFrom(token, this.pubKeyOther, this.pubKeyOwner,this.pubKeyOther, this.transferAmount);
+
+        Assertions.assertEquals(currentOwnerBalance - this.transferAmount, token.getAddress(this.pubKeyOwner).getBalance());
+        Assertions.assertEquals(currentOtherBalance + this.transferAmount, token.getAddress(this.pubKeyOther).getBalance());
+        Assertions.assertEquals(currentApproval - this.transferAmount, token.getAddress(this.pubKeyOwner).getAllowance(this.pubKeyOther));
     }
 }

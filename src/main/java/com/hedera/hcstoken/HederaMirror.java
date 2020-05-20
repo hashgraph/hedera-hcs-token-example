@@ -78,58 +78,69 @@ public final class HederaMirror {
             token.setLastConsensusSeconds(notification.consensusTimestamp.getEpochSecond());
             token.setLastConsensusNanos(notification.consensusTimestamp.getNano());
 
-            // Process response
-            if (primitive.hasConstruct()) {
-                Construct construct = primitive.getConstruct();
-                if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, construct.toByteArray(), 0, construct.toByteArray().length)) {
-                    System.out.println("Signature verification on message failed");
-                    return;
+            try {
+                // Process response
+                if (primitive.hasConstruct()) {
+                    Construct construct = primitive.getConstruct();
+                    if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, construct.toByteArray(), 0, construct.toByteArray().length)) {
+                        System.out.println("Signature verification on message failed");
+                        return;
+                    }
+                    Primitives.construct(token, address, construct.getName(), construct.getSymbol(), construct.getDecimals());
+                } else if (primitive.hasMint()) {
+                    Mint mint = primitive.getMint();
+                    if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, mint.toByteArray(), 0, mint.toByteArray().length)) {
+                        System.out.println("Signature verification on message failed");
+                        return;
+                    }
+                    Primitives.mint(token, mint.getAddress(), mint.getQuantity());
+                } else if (primitive.hasTransfer()) {
+                    Transfer transfer = primitive.getTransfer();
+                    if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, transfer.toByteArray(), 0, transfer.toByteArray().length)) {
+                        System.out.println("Signature verification on message failed");
+                        return;
+                    }
+                    Primitives.transfer(token, primitive.getPublicKey(), transfer.getToAddress(), transfer.getQuantity());
+                } else if (primitive.hasJoin()) {
+                    Join join = primitive.getJoin();
+                    if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, join.toByteArray(), 0, join.toByteArray().length)) {
+                        System.out.println("Signature verification on message failed");
+                        return;
+                    }
+                    Primitives.join(token, join.getAddress());
+                } else if (primitive.hasApprove()) {
+                    Approve approve = primitive.getApprove();
+                    if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, approve.toByteArray(), 0, approve.toByteArray().length)) {
+                        System.out.println("Signature verification on message failed");
+                        return;
+                    }
+                    Primitives.approve(token, primitive.getPublicKey(), approve.getSpender(), approve.getAmount());
+                } else if (primitive.hasIncreaseAllowance()) {
+                    IncreaseAllowance increaseAllowance = primitive.getIncreaseAllowance();
+                    if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, increaseAllowance.toByteArray(), 0, increaseAllowance.toByteArray().length)) {
+                        System.out.println("Signature verification on message failed");
+                        return;
+                    }
+                    Primitives.increaseAllowance(token, primitive.getPublicKey(), increaseAllowance.getSpender(), increaseAllowance.getAddedValue());
+                } else if (primitive.hasDecreaseAllowance()) {
+                    DecreaseAllowance decreaseAllowance = primitive.getDecreaseAllowance();
+                    if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, decreaseAllowance.toByteArray(), 0, decreaseAllowance.toByteArray().length)) {
+                        System.out.println("Signature verification on message failed");
+                        return;
+                    }
+                    Primitives.decreaseAllowance(token, primitive.getPublicKey(), decreaseAllowance.getSpender(), decreaseAllowance.getSubtractedValue());
+                } else if (primitive.hasTransferFrom()) {
+                    TransferFrom transferFrom = primitive.getTransferFrom();
+                    if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, transferFrom.toByteArray(), 0, transferFrom.toByteArray().length)) {
+                        System.out.println("Signature verification on message failed");
+                        return;
+                    }
+                    Primitives.transferFrom(token, primitive.getPublicKey(), transferFrom.getFromAddress(), transferFrom.getToAddress(), transferFrom.getAmount());
+                } else {
+                    System.out.println("Unable to process mirror notification - unknown primitive");
                 }
-                Primitives.construct(token, address, construct.getName(), construct.getSymbol(), construct.getDecimals());
-            } else if (primitive.hasMint()) {
-                Mint mint = primitive.getMint();
-                if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, mint.toByteArray(), 0, mint.toByteArray().length)) {
-                    System.out.println("Signature verification on message failed");
-                    return;
-                }
-                Primitives.mint(token, mint.getAddress(), mint.getQuantity());
-            } else if (primitive.hasTransfer()) {
-                Transfer transfer = primitive.getTransfer();
-                if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, transfer.toByteArray(), 0, transfer.toByteArray().length)) {
-                    System.out.println("Signature verification on message failed");
-                    return;
-                }
-                Primitives.transfer(token, transfer.getFromAddress(), transfer.getToAddress(), transfer.getQuantity());
-            } else if (primitive.hasJoin()) {
-                Join join = primitive.getJoin();
-                if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, join.toByteArray(), 0, join.toByteArray().length)) {
-                    System.out.println("Signature verification on message failed");
-                    return;
-                }
-                Primitives.join(token, join.getAddress());
-            } else if (primitive.hasApprove()) {
-                Approve approve = primitive.getApprove();
-                if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, approve.toByteArray(), 0, approve.toByteArray().length)) {
-                    System.out.println("Signature verification on message failed");
-                    return;
-                }
-                Primitives.approve(token, approve.getFromAddress(), approve.getSpender(), approve.getAmount());
-            } else if (primitive.hasIncreaseAllowance()) {
-                IncreaseAllowance increaseAllowance = primitive.getIncreaseAllowance();
-                if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, increaseAllowance.toByteArray(), 0, increaseAllowance.toByteArray().length)) {
-                    System.out.println("Signature verification on message failed");
-                    return;
-                }
-                Primitives.increaseAllowance(token, increaseAllowance.getFromAddress(), increaseAllowance.getSpender(), increaseAllowance.getAddedValue());
-            } else if (primitive.hasDecreaseAllowance()) {
-                DecreaseAllowance decreaseAllowance = primitive.getDecreaseAllowance();
-                if ( ! Ed25519.verify(signature, 0, signingKey.toBytes(), 0, decreaseAllowance.toByteArray(), 0, decreaseAllowance.toByteArray().length)) {
-                    System.out.println("Signature verification on message failed");
-                    return;
-                }
-                Primitives.decreaseAllowance(token, decreaseAllowance.getFromAddress(), decreaseAllowance.getSpender(), decreaseAllowance.getSubtractedValue());
-            } else {
-                System.out.println("Unable to process mirror notification - unknown primitive");
+            } catch (Exception e) {
+                System.out.println("An error occurred : " + e.getMessage());
             }
         } catch (Exception e) {
             System.out.println("Unable to process mirror notification - unknown message type");
