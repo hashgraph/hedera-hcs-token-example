@@ -46,6 +46,7 @@ public final class HCSToken
             System.out.println("  approve {spender} {amount}");
             System.out.println("  increaseAllowance {spender} {addedValue}");
             System.out.println("  decreaseAllowance {spender} {addedValue}");
+            System.out.println("  transferFrom {fromAddress} {toAddress} {amount}");
             // queries
             System.out.println("  balanceOf {address}");
             System.out.println("  totalSupply");
@@ -93,6 +94,10 @@ public final class HCSToken
             case "DECREASEALLOWANCE":
                 // increaseAllowance {spender} {addedValue}
                 Transactions.decreaseAllowance(token, args[1], Long.parseLong(args[2]));
+                break;
+            case "TRANSFERFROM":
+                // transferFrom {fromAddress} {toAddress} {amount}
+                Transactions.transferFrom(token, args[1], args[2], Long.parseLong(args[3]));
                 break;
             case "JOIN":
                 // join {topicId}

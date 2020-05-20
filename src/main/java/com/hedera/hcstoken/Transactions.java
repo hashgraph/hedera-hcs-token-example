@@ -178,7 +178,6 @@ public final class Transactions {
         setupSDKClient();
         Transfer transfer = Transfer.newBuilder()
                 .setToAddress(address)
-                .setFromAddress(OPERATOR_KEY.publicKey.toString())
                 .setQuantity(quantity)
                 .build();
 
@@ -204,7 +203,6 @@ public final class Transactions {
     public static Primitive approve(Token token, String spender, long amount) throws Exception {
         setupSDKClient();
         Approve approve = Approve.newBuilder()
-                .setFromAddress(OPERATOR_KEY.publicKey.toString())
                 .setSpender(spender)
                 .setAmount(amount)
                 .build();
@@ -231,7 +229,6 @@ public final class Transactions {
     public static Primitive increaseAllowance(Token token, String spender, long addedValue) throws Exception {
         setupSDKClient();
         IncreaseAllowance increaseAllowance = IncreaseAllowance.newBuilder()
-                .setFromAddress(OPERATOR_KEY.publicKey.toString())
                 .setSpender(spender)
                 .setAddedValue(addedValue)
                 .build();
@@ -258,7 +255,6 @@ public final class Transactions {
     public static Primitive decreaseAllowance(Token token, String spender, long substractedValue) throws Exception {
         setupSDKClient();
         DecreaseAllowance decreaseAllowance = DecreaseAllowance.newBuilder()
-                .setFromAddress(OPERATOR_KEY.publicKey.toString())
                 .setSpender(spender)
                 .setSubtractedValue(substractedValue)
                 .build();
@@ -267,6 +263,34 @@ public final class Transactions {
 
         Primitive primitive = Primitive.newBuilder()
                 .setDecreaseAllowance(decreaseAllowance)
+                .setSignature(ByteString.copyFrom(signature))
+                .setPublicKey(OPERATOR_KEY.publicKey.toString())
+                .build();
+        HCSSend(token, primitive);
+        return primitive;
+    }
+
+    /**
+     * Transfers from an address by an approved address
+     *
+     * @param token:    The token object
+     * @param fromAddress: The address to withdraw from
+     * @param toAddress:  The address to send to
+     * @param amount: The amount to send
+     * @throws Exception
+     */
+    public static Primitive transferFrom(Token token, String fromAddress, String toAddress, long amount) throws Exception {
+        setupSDKClient();
+        TransferFrom transferFrom = TransferFrom.newBuilder()
+                .setFromAddress(fromAddress)
+                .setToAddress(toAddress)
+                .setAmount(amount)
+                .build();
+
+        byte[] signature = OPERATOR_KEY.sign(transferFrom.toByteArray());
+
+        Primitive primitive = Primitive.newBuilder()
+                .setTransferFrom(transferFrom)
                 .setSignature(ByteString.copyFrom(signature))
                 .setPublicKey(OPERATOR_KEY.publicKey.toString())
                 .build();

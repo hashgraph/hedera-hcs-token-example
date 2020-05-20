@@ -218,6 +218,56 @@ public final class Primitives {
     }
 
     /**
+     * Transfers from an address using an allowancee
+     * @param token: the token object
+     * @param msgSender: the transaction initiator address
+     * @param fromAddress: the address to withdraw from
+     * @param toAddress: the address to pay
+     * @param amount: the amount to pay
+     * @throws Exception: in the event of an error
+     */
+    public static void transferFrom(Token token, String msgSender, String fromAddress, String toAddress, long amount) throws Exception {
+        System.out.println(String.format("Processing mirror notification - transferFrom (%s) to (%s) by %d", fromAddress, toAddress, amount));
+
+        System.out.println("TransferFrom: msgSender " + msgSender);
+        final Address fromAddr = token.getAddress(fromAddress);
+        final Address senderAddr = token.getAddress(msgSender);
+
+        if (senderAddr == null) {
+            String error = "TransferFrom - operation initiator unknown";
+            System.out.println(error);
+            throw new Exception(error);
+        }
+
+        if (!isKnownAddress(token, fromAddress)) {
+            String error = "TransferFrom - from address unknown";
+            System.out.println(error);
+            throw new Exception(error);
+        } else if ((toAddress == null) || (toAddress.isEmpty())) {
+            String error = "TransferFrom - toAddress address is empty";
+            System.out.println(error);
+            throw new Exception(error);
+        } else {
+            if (fromAddr.getAllowances().containsKey(msgSender)) {
+                if (fromAddr.getAllowance(msgSender) < amount) {
+                    String error = "TransferFrom - specified amount above approved allowance";
+                    System.out.println(error);
+                    throw new Exception(error);
+                }
+                long newBalance = fromAddr.getBalance() - amount;
+                fromAddr.setBalance(newBalance);
+                newBalance = token.getAddress(toAddress).getBalance() + amount;
+                token.getAddress(toAddress).setBalance(newBalance);
+                decreaseAllowance(token, fromAddress, msgSender, amount);
+            } else {
+                String error = "TransferFrom - operation initiator is not approved";
+                System.out.println(error);
+                throw new Exception(error);
+            }
+        }
+    }
+
+    /**
      * Adds an address to the App Net by adding it to the address book
      * @param token: the token object
      * @param address: the address wanting to join the network

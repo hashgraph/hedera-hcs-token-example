@@ -114,7 +114,6 @@ public class TransactionsTest extends AbstractTestData {
 
         Transfer transfer = Transfer.newBuilder()
                 .setToAddress(this.pubKeyOther)
-                .setFromAddress(this.operatorKey.publicKey.toString())
                 .setQuantity(this.quantity)
                 .build();
 
@@ -132,7 +131,6 @@ public class TransactionsTest extends AbstractTestData {
         Token token = new Token();
 
         Approve approve = Approve.newBuilder()
-                .setFromAddress(this.operatorKey.publicKey.toString())
                 .setSpender(this.pubKeyOther)
                 .setAmount(this.approveAmount)
                 .build();
@@ -151,7 +149,6 @@ public class TransactionsTest extends AbstractTestData {
         Token token = new Token();
 
         IncreaseAllowance increaseAllowance = IncreaseAllowance.newBuilder()
-                .setFromAddress(this.operatorKey.publicKey.toString())
                 .setSpender(this.pubKeyOther)
                 .setAddedValue(this.allowance)
                 .build();
@@ -170,7 +167,6 @@ public class TransactionsTest extends AbstractTestData {
         Token token = new Token();
 
         DecreaseAllowance decreaseAllowance = DecreaseAllowance.newBuilder()
-                .setFromAddress(this.operatorKey.publicKey.toString())
                 .setSpender(this.pubKeyOther)
                 .setSubtractedValue(this.allowance)
                 .build();
@@ -180,6 +176,25 @@ public class TransactionsTest extends AbstractTestData {
         Primitive primitive = Transactions.decreaseAllowance(token, this.pubKeyOther, this.allowance);
 
         Assertions.assertArrayEquals(decreaseAllowance.toByteArray(), primitive.getDecreaseAllowance().toByteArray());
+        checkSigAndKey(signature, primitive);
+    }
+
+    @Test
+    public void testTransferFrom() throws Exception {
+        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Token token = new Token();
+
+        TransferFrom transferFrom = TransferFrom.newBuilder()
+                .setFromAddress(this.operatorKey.publicKey.toString())
+                .setToAddress(this.pubKeyOther)
+                .setAmount(this.transferAmount)
+                .build();
+
+        byte[] signature = this.operatorKey.sign(transferFrom.toByteArray());
+
+        Primitive primitive = Transactions.transferFrom(token, this.operatorKey.publicKey.toString(), this.pubKeyOther, this.transferAmount);
+
+        Assertions.assertArrayEquals(transferFrom.toByteArray(), primitive.getTransferFrom().toByteArray());
         checkSigAndKey(signature, primitive);
     }
 

@@ -17,26 +17,28 @@ message Mint {
 
 message Transfer {
   string toAddress = 1;
-  string fromAddress = 2;
-  uint64 quantity = 3;
+  uint64 quantity = 2;
 }
 
 message Approve {
-  string fromAddress = 1;
-  string spender = 2;
-  uint64 amount = 3;
+  string spender = 1;
+  uint64 amount = 2;
 }
 
 message IncreaseAllowance {
-  string fromAddress = 1;
-  string spender = 2;
-  uint64 addedValue = 3;
+  string spender = 1;
+  uint64 addedValue = 2;
 }
 
 message DecreaseAllowance {
+  string spender = 1;
+  uint64 subtractedValue = 2;
+}
+
+message TransferFrom {
   string fromAddress = 1;
-  string spender = 2;
-  uint64 subtractedValue = 3;
+  string toAddress = 2;
+  uint64 amount = 3;
 }
 
 message Join {
@@ -55,5 +57,6 @@ message Primitive {
     Approve approve = 7;
     IncreaseAllowance increaseAllowance = 8;
     DecreaseAllowance decreaseAllowance = 9;
+    TransferFrom transferFrom = 10;
   }
 }
