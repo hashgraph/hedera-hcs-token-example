@@ -23,6 +23,7 @@ package com.hedera.hcstoken;
 import com.hedera.hashgraph.sdk.crypto.ed25519.Ed25519PrivateKey;
 
 import java.io.File;
+import java.time.Instant;
 
 public abstract class AbstractTestData {
     final File stateFile = new File(getClass().getClassLoader().getResource("test.json").getFile());
@@ -34,11 +35,10 @@ public abstract class AbstractTestData {
     final int decimals = 10;
     final long lastConsensusSeconds = 1589301202;
     final int lastConsensusNanos = 955026000;
+    final Instant consensusTimestamp = Instant.ofEpochSecond(this.lastConsensusSeconds).plusNanos(this.lastConsensusNanos);
 
-    final String pubKeyOwner = "302a300506032b65700321006e42135c6c7c9162a5f96f6d693677742fd0b3f160e1168cc28f2dadaa9e79cc";
     final long ownerBalance = 980;
 
-    final String pubKeyOther = "302a300506032b65700321009308a434a9cac34e2f7ce95fc671bfbbaa4e43760880c4f1ad5a58a0b3932232";
     final long otherBalance = 20;
 
     final long quantity = 1;
@@ -49,4 +49,14 @@ public abstract class AbstractTestData {
 
     final String operatorId = "0.0.999";
     final Ed25519PrivateKey operatorKey = Ed25519PrivateKey.generate();
+    final String pubKeyOwner = operatorKey.publicKey.toString();
+
+    final Ed25519PrivateKey operatorKeyOther = Ed25519PrivateKey.generate();
+    final String pubKeyOther = operatorKeyOther.publicKey.toString();
+
+    final long randomLong = 1234567890;
+
+    public void setTestData(Transactions transactions) {
+        transactions.setTestData(this.topicId, this.operatorId, this.operatorKey, this.randomLong);
+    }
 }

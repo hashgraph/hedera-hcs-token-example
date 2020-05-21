@@ -20,6 +20,7 @@ package com.hedera.hcstoken.state;
  * ‍
  */
 
+import org.bouncycastle.util.encoders.Hex;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +36,7 @@ public final class Token {
     private String name = "";
     private int decimals = 0;
     private Map<String, Address> addresses = new HashMap<String, Address>();
+    private Map<String, String> operations = new HashMap<String, String>();
     // AppNet specifics
     private long lastConsensusSeconds = 0;
     private int lastConsensusNanos = 0;
@@ -102,6 +104,22 @@ public final class Token {
             return this.addresses.get(publicKey);
         } catch (NullPointerException e) {
             return null;
+        }
+    }
+    public Map<String, String> getOperations() {
+        return this.operations;
+    }
+    public void setOperations(Map<String, String> operations) {
+        this.operations = operations;
+    }
+
+    public void addOperation(byte[] operationHash) throws Exception {
+
+        String operation = Hex.toHexString(operationHash);
+        if (this.operations.containsKey(operation)) {
+            throw new Exception("Duplicate Operation hash detected " + operation);
+        } else {
+            this.operations.put(operation, "");
         }
     }
 
