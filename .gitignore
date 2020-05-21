@@ -21,10 +21,11 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-.env
+.env.sample
 .idea/
 0.0.*.json
 HCSToken.iml
 target/
 erc20.sol
 run-greg.sh
+.env

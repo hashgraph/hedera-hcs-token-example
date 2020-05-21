@@ -20,18 +20,21 @@ package com.hedera.hcstoken;
  * ‍
  */
 
-import com.google.protobuf.ByteString;
 import com.hedera.hcstoken.state.Token;
 import org.junit.jupiter.api.*;
 import proto.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class TransactionsTest extends AbstractTestData {
 
     @Test
     public void testConstruct() throws Exception {
-        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Transactions transactions = new Transactions();
+        setTestData(transactions);
         Token token = new Token();
-        Primitive primitive = Transactions.construct(token, name, symbol, decimals);
+        Primitive primitive = transactions.construct(token, name, symbol, decimals);
 
         Assertions.assertEquals(this.topicId, token.getTopicId());
 
@@ -41,14 +44,14 @@ public class TransactionsTest extends AbstractTestData {
                 .setDecimals(decimals)
                 .build();
 
-        byte[] signature = operatorKey.sign(construct.toByteArray());
-
         Assertions.assertArrayEquals(construct.toByteArray(), primitive.getConstruct().toByteArray());
+
+        byte[] signature = signature(construct.toByteArray());
         checkSigAndKey(signature, primitive);
 
         // construct again, should fail
         try {
-            Transactions.construct(token, name, symbol, decimals);
+            transactions.construct(token, name, symbol, decimals);
             Assertions.fail("Second construction should have thrown error");
         } catch (Exception e) {
             Assertions.assertTrue(e.getMessage().contains("Topic ID is already set, you cannot overwrite"));
@@ -57,12 +60,13 @@ public class TransactionsTest extends AbstractTestData {
 
     @Test
     public void testJoin() throws Exception {
-        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Transactions transactions = new Transactions();
+        setTestData(transactions);
         Token token = new Token();
 
         // join with empty address
         try {
-            Transactions.join(token, "");
+            transactions.join(token, "");
             Assertions.fail("Join with empty address should have thrown error");
         } catch (Exception e) {
             Assertions.assertTrue(e.getMessage().contains("Cannot join with an empty address"));
@@ -72,17 +76,17 @@ public class TransactionsTest extends AbstractTestData {
                 .setAddress(this.pubKeyOther)
                 .build();
 
-        byte[] signature = operatorKey.sign(join.toByteArray());
-
-        Primitive primitive = Transactions.join(token, this.pubKeyOther);
-
+        Primitive primitive = transactions.join(token, this.pubKeyOther);
         Assertions.assertArrayEquals(join.toByteArray(), primitive.getJoin().toByteArray());
+
+        byte[] signature = signature(join.toByteArray());
         checkSigAndKey(signature, primitive);
     }
 
     @Test
     public void testMint() throws Exception {
-        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Transactions transactions = new Transactions();
+        setTestData(transactions);
         Token token = new Token();
 
         Mint mint = Mint.newBuilder()
@@ -90,17 +94,16 @@ public class TransactionsTest extends AbstractTestData {
                 .setQuantity(this.quantity)
                 .build();
 
-        byte[] signature = operatorKey.sign(mint.toByteArray());
-
-        Primitive primitive = Transactions.mint(token, this.quantity);
-
+        Primitive primitive = transactions.mint(token, this.quantity);
         Assertions.assertArrayEquals(mint.toByteArray(), primitive.getMint().toByteArray());
+
+        byte[] signature = signature(mint.toByteArray());
         checkSigAndKey(signature, primitive);
 
         // mint again for error
         try {
             token.setTotalSupply(this.totalSupply);
-            Transactions.mint(token, this.quantity);
+            transactions.mint(token, this.quantity);
             Assertions.fail("Already minted token should fail");
         } catch (Exception e) {
             Assertions.assertTrue(e.getMessage().contains("Token already minted"));
@@ -109,7 +112,8 @@ public class TransactionsTest extends AbstractTestData {
 
     @Test
     public void testTransfer() throws Exception {
-        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Transactions transactions = new Transactions();
+        setTestData(transactions);
         Token token = new Token();
 
         Transfer transfer = Transfer.newBuilder()
@@ -117,17 +121,17 @@ public class TransactionsTest extends AbstractTestData {
                 .setQuantity(this.quantity)
                 .build();
 
-        byte[] signature = this.operatorKey.sign(transfer.toByteArray());
-
-        Primitive primitive = Transactions.transfer(token, this.pubKeyOther, this.quantity);
-
+        Primitive primitive = transactions.transfer(token, this.pubKeyOther, this.quantity);
         Assertions.assertArrayEquals(transfer.toByteArray(), primitive.getTransfer().toByteArray());
+
+        byte[] signature = signature(transfer.toByteArray());
         checkSigAndKey(signature, primitive);
     }
 
     @Test
     public void testApprove() throws Exception {
-        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Transactions transactions = new Transactions();
+        setTestData(transactions);
         Token token = new Token();
 
         Approve approve = Approve.newBuilder()
@@ -135,17 +139,17 @@ public class TransactionsTest extends AbstractTestData {
                 .setAmount(this.approveAmount)
                 .build();
 
-        byte[] signature = this.operatorKey.sign(approve.toByteArray());
-
-        Primitive primitive = Transactions.approve(token, this.pubKeyOther, this.approveAmount);
-
+        Primitive primitive = transactions.approve(token, this.pubKeyOther, this.approveAmount);
         Assertions.assertArrayEquals(approve.toByteArray(), primitive.getApprove().toByteArray());
+
+        byte[] signature = signature(approve.toByteArray());
         checkSigAndKey(signature, primitive);
     }
 
     @Test
     public void testIncreaseAllowance() throws Exception {
-        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Transactions transactions = new Transactions();
+        setTestData(transactions);
         Token token = new Token();
 
         IncreaseAllowance increaseAllowance = IncreaseAllowance.newBuilder()
@@ -153,17 +157,17 @@ public class TransactionsTest extends AbstractTestData {
                 .setAddedValue(this.allowance)
                 .build();
 
-        byte[] signature = this.operatorKey.sign(increaseAllowance.toByteArray());
-
-        Primitive primitive = Transactions.increaseAllowance(token, this.pubKeyOther, this.allowance);
-
+        Primitive primitive = transactions.increaseAllowance(token, this.pubKeyOther, this.allowance);
         Assertions.assertArrayEquals(increaseAllowance.toByteArray(), primitive.getIncreaseAllowance().toByteArray());
+
+        byte[] signature = signature(increaseAllowance.toByteArray());
         checkSigAndKey(signature, primitive);
     }
 
     @Test
     public void testDecreaseAllowance() throws Exception {
-        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Transactions transactions = new Transactions();
+        setTestData(transactions);
         Token token = new Token();
 
         DecreaseAllowance decreaseAllowance = DecreaseAllowance.newBuilder()
@@ -171,17 +175,17 @@ public class TransactionsTest extends AbstractTestData {
                 .setSubtractedValue(this.allowance)
                 .build();
 
-        byte[] signature = this.operatorKey.sign(decreaseAllowance.toByteArray());
-
-        Primitive primitive = Transactions.decreaseAllowance(token, this.pubKeyOther, this.allowance);
-
+        Primitive primitive = transactions.decreaseAllowance(token, this.pubKeyOther, this.allowance);
         Assertions.assertArrayEquals(decreaseAllowance.toByteArray(), primitive.getDecreaseAllowance().toByteArray());
+
+        byte[] signature = signature(decreaseAllowance.toByteArray());
         checkSigAndKey(signature, primitive);
     }
 
     @Test
     public void testTransferFrom() throws Exception {
-        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Transactions transactions = new Transactions();
+        setTestData(transactions);
         Token token = new Token();
 
         TransferFrom transferFrom = TransferFrom.newBuilder()
@@ -190,33 +194,45 @@ public class TransactionsTest extends AbstractTestData {
                 .setAmount(this.transferAmount)
                 .build();
 
-        byte[] signature = this.operatorKey.sign(transferFrom.toByteArray());
-
-        Primitive primitive = Transactions.transferFrom(token, this.operatorKey.publicKey.toString(), this.pubKeyOther, this.transferAmount);
-
+        Primitive primitive = transactions.transferFrom(token, this.operatorKey.publicKey.toString(), this.pubKeyOther, this.transferAmount);
         Assertions.assertArrayEquals(transferFrom.toByteArray(), primitive.getTransferFrom().toByteArray());
+
+        byte[] signature = signature(transferFrom.toByteArray());
         checkSigAndKey(signature, primitive);
     }
 
     @Test
     public void testBurn() throws Exception {
-        Transactions.setTestData(this.topicId, this.operatorId, this.operatorKey);
+        Transactions transactions = new Transactions();
+        setTestData(transactions);
         Token token = new Token();
 
         Burn burn = Burn.newBuilder()
                 .setAmount(this.burnAmount)
                 .build();
 
-        byte[] signature = this.operatorKey.sign(burn.toByteArray());
 
-        Primitive primitive = Transactions.burn(token, this.burnAmount);
-
+        Primitive primitive = transactions.burn(token, this.burnAmount);
         Assertions.assertArrayEquals(burn.toByteArray(), primitive.getBurn().toByteArray());
+
+        byte[] signature = signature(burn.toByteArray());
         checkSigAndKey(signature, primitive);
     }
 
     private void checkSigAndKey(byte[] signature, Primitive primitive) {
-        Assertions.assertArrayEquals(signature, primitive.getSignature().toByteArray());
-        Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getPublicKey());
+        Assertions.assertArrayEquals(signature, primitive.getHeader().getSignature().toByteArray());
+        Assertions.assertEquals(operatorKey.publicKey.toString(), primitive.getHeader().getPublicKey());
     }
+
+    private byte[] signature(byte[] toSign) throws IOException {
+        // get a random long into a byte array
+        byte[] randomString = String.valueOf(this.randomLong).getBytes("UTF-8");
+        // concatenate random long with data to sign
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+        outputStream.write( toSign );
+        outputStream.write( randomString );
+        // sign the result
+        return this.operatorKey.sign(outputStream.toByteArray( ));
+    }
+
 }

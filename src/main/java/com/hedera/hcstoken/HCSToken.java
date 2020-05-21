@@ -69,40 +69,41 @@ public final class HCSToken
             System.out.print(String.format(" %s", argument));
         }
         System.out.println();
+        Transactions transactions = new Transactions();
 
         switch (args[0].toUpperCase()) {
             // primitives
             case "CONSTRUCT":
                 // construct {name} {symbol} {decimals}
-                Transactions.construct(token, args[1], args[2], parseInt(args[3]));
+                transactions.construct(token, args[1], args[2], parseInt(args[3]));
                 break;
             case "MINT":
                 // mint {quantity}
-                Transactions.mint(token, Long.parseLong(args[1]));
+                transactions.mint(token, Long.parseLong(args[1]));
                 break;
             case "TRANSFER":
                 // transfer {address} {quantity}
-                Transactions.transfer(token, args[1], Long.parseLong(args[2]));
+                transactions.transfer(token, args[1], Long.parseLong(args[2]));
                 break;
             case "APPROVE":
                 // approve {spender} {amount}
-                Transactions.approve(token, args[1], Long.parseLong(args[2]));
+                transactions.approve(token, args[1], Long.parseLong(args[2]));
                 break;
             case "INCREASEALLOWANCE":
                 // increaseAllowance {spender} {addedValue}
-                Transactions.increaseAllowance(token, args[1], Long.parseLong(args[2]));
+                transactions.increaseAllowance(token, args[1], Long.parseLong(args[2]));
                 break;
             case "DECREASEALLOWANCE":
                 // increaseAllowance {spender} {addedValue}
-                Transactions.decreaseAllowance(token, args[1], Long.parseLong(args[2]));
+                transactions.decreaseAllowance(token, args[1], Long.parseLong(args[2]));
                 break;
             case "TRANSFERFROM":
                 // transferFrom {fromAddress} {toAddress} {amount}
-                Transactions.transferFrom(token, args[1], args[2], Long.parseLong(args[3]));
+                transactions.transferFrom(token, args[1], args[2], Long.parseLong(args[3]));
                 break;
             case "BURN":
                 // burn {amount}
-                Transactions.burn(token, Long.parseLong(args[1]));
+                transactions.burn(token, Long.parseLong(args[1]));
                 break;
             case "JOIN":
                 // join {topicId}

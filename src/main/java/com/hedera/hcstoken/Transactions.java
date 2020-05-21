@@ -32,17 +32,24 @@ import com.hedera.hcstoken.state.Token;
 import io.github.cdimascio.dotenv.Dotenv;
 import proto.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Random;
+
 /**
  * This class is responsible for constructing and sending messages to HCS
  * It is invoked by the HCSErc20 class following command line inputs
  */
 public final class Transactions {
-    private static AccountId OPERATOR_ID;
-    private static Ed25519PrivateKey OPERATOR_KEY;
-    private static final Client client = Client.forTestnet();
+    private AccountId OPERATOR_ID;
+    private Ed25519PrivateKey OPERATOR_KEY;
+    private final Client client = Client.forTestnet();
 
-    private static boolean testing = false;
-    private static String testTopicId = "";
+    private boolean testing = false;
+    private String testTopicId = "";
+
+    private Random random = new Random();
+    private long randomLongForTest = 0;
 
     /** sets up data for unit testing
      *
@@ -50,11 +57,12 @@ public final class Transactions {
      * @param operatorId:   The operator Id to use for test purposes
      * @param operatorKey:  The operator Key to use for test purposes
      */
-    public static void setTestData(String topicId, String operatorId, Ed25519PrivateKey operatorKey) {
+    public void setTestData(String topicId, String operatorId, Ed25519PrivateKey operatorKey, long randomLong) {
         testing = true;
         testTopicId = topicId;
         OPERATOR_ID = AccountId.fromString(operatorId);
         OPERATOR_KEY = operatorKey;
+        randomLongForTest = randomLong;
     }
     /**
      * Constructs a token (similar to an ERC20 token construct function)
@@ -65,7 +73,7 @@ public final class Transactions {
      * @param decimals: The number of decimals for this token
      * @throws Exception
      */
-    public static Primitive construct(Token token, String name, String symbol, int decimals) throws Exception {
+    public Primitive construct(Token token, String name, String symbol, int decimals) throws Exception {
 
         if (token.getTopicId().isEmpty()) {
             setupSDKClient();
@@ -88,12 +96,9 @@ public final class Transactions {
                     .setDecimals(decimals)
                     .build();
 
-            byte[] signature = OPERATOR_KEY.sign(construct.toByteArray());
-
             Primitive primitive = Primitive.newBuilder()
+                    .setHeader(primitiveHeader(construct.toByteArray()))
                     .setConstruct(construct)
-                    .setSignature(ByteString.copyFrom(signature))
-                    .setPublicKey(OPERATOR_KEY.publicKey.toString())
                     .build();
             HCSSend(token, primitive);
             return primitive;
@@ -111,7 +116,7 @@ public final class Transactions {
      * @param address:  The address to add
      * @throws Exception
      */
-    public static Primitive join(Token token, String address) throws Exception {
+    public Primitive join(Token token, String address) throws Exception {
         if (address.isEmpty()) {
             String error = "Cannot join with an empty address";
             System.out.println(error);
@@ -122,12 +127,9 @@ public final class Transactions {
                 .setAddress(address)
                 .build();
 
-        byte[] signature = OPERATOR_KEY.sign(join.toByteArray());
-
         Primitive primitive = Primitive.newBuilder()
+                .setHeader(primitiveHeader(join.toByteArray()))
                 .setJoin(join)
-                .setSignature(ByteString.copyFrom(signature))
-                .setPublicKey(OPERATOR_KEY.publicKey.toString())
                 .build();
 
         HCSSend(token, primitive);
@@ -141,7 +143,7 @@ public final class Transactions {
      * @param quantity: The amount to mint
      * @throws Exception
      */
-    public static Primitive mint(Token token, long quantity) throws Exception {
+    public Primitive mint(Token token, long quantity) throws Exception {
         if (token.getTotalSupply() == 0) {
             setupSDKClient();
             Mint mint = Mint.newBuilder()
@@ -149,12 +151,9 @@ public final class Transactions {
                     .setQuantity(quantity)
                     .build();
 
-            byte[] signature = OPERATOR_KEY.sign(mint.toByteArray());
-
             Primitive primitive = Primitive.newBuilder()
+                    .setHeader(primitiveHeader(mint.toByteArray()))
                     .setMint(mint)
-                    .setSignature(ByteString.copyFrom(signature))
-                    .setPublicKey(OPERATOR_KEY.publicKey.toString())
                     .build();
 
             HCSSend(token, primitive);
@@ -174,19 +173,16 @@ public final class Transactions {
      * @param quantity: The quantity to transfer
      * @throws Exception
      */
-    public static Primitive transfer(Token token, String address, long quantity) throws Exception {
+    public Primitive transfer(Token token, String address, long quantity) throws Exception {
         setupSDKClient();
         Transfer transfer = Transfer.newBuilder()
                 .setToAddress(address)
                 .setQuantity(quantity)
                 .build();
 
-        byte[] signature = OPERATOR_KEY.sign(transfer.toByteArray());
-
         Primitive primitive = Primitive.newBuilder()
+                .setHeader(primitiveHeader(transfer.toByteArray()))
                 .setTransfer(transfer)
-                .setSignature(ByteString.copyFrom(signature))
-                .setPublicKey(OPERATOR_KEY.publicKey.toString())
                 .build();
         HCSSend(token, primitive);
         return primitive;
@@ -200,19 +196,16 @@ public final class Transactions {
      * @param amount: The amount to approve
      * @throws Exception
      */
-    public static Primitive approve(Token token, String spender, long amount) throws Exception {
+    public Primitive approve(Token token, String spender, long amount) throws Exception {
         setupSDKClient();
         Approve approve = Approve.newBuilder()
                 .setSpender(spender)
                 .setAmount(amount)
                 .build();
 
-        byte[] signature = OPERATOR_KEY.sign(approve.toByteArray());
-
         Primitive primitive = Primitive.newBuilder()
+                .setHeader(primitiveHeader(approve.toByteArray()))
                 .setApprove(approve)
-                .setSignature(ByteString.copyFrom(signature))
-                .setPublicKey(OPERATOR_KEY.publicKey.toString())
                 .build();
         HCSSend(token, primitive);
         return primitive;
@@ -226,19 +219,16 @@ public final class Transactions {
      * @param addedValue: The amount to add to the allowance
      * @throws Exception
      */
-    public static Primitive increaseAllowance(Token token, String spender, long addedValue) throws Exception {
+    public Primitive increaseAllowance(Token token, String spender, long addedValue) throws Exception {
         setupSDKClient();
         IncreaseAllowance increaseAllowance = IncreaseAllowance.newBuilder()
                 .setSpender(spender)
                 .setAddedValue(addedValue)
                 .build();
 
-        byte[] signature = OPERATOR_KEY.sign(increaseAllowance.toByteArray());
-
         Primitive primitive = Primitive.newBuilder()
+                .setHeader(primitiveHeader(increaseAllowance.toByteArray()))
                 .setIncreaseAllowance(increaseAllowance)
-                .setSignature(ByteString.copyFrom(signature))
-                .setPublicKey(OPERATOR_KEY.publicKey.toString())
                 .build();
         HCSSend(token, primitive);
         return primitive;
@@ -252,19 +242,16 @@ public final class Transactions {
      * @param substractedValue: The amount to add to the allowance
      * @throws Exception
      */
-    public static Primitive decreaseAllowance(Token token, String spender, long substractedValue) throws Exception {
+    public Primitive decreaseAllowance(Token token, String spender, long substractedValue) throws Exception {
         setupSDKClient();
         DecreaseAllowance decreaseAllowance = DecreaseAllowance.newBuilder()
                 .setSpender(spender)
                 .setSubtractedValue(substractedValue)
                 .build();
 
-        byte[] signature = OPERATOR_KEY.sign(decreaseAllowance.toByteArray());
-
         Primitive primitive = Primitive.newBuilder()
+                .setHeader(primitiveHeader(decreaseAllowance.toByteArray()))
                 .setDecreaseAllowance(decreaseAllowance)
-                .setSignature(ByteString.copyFrom(signature))
-                .setPublicKey(OPERATOR_KEY.publicKey.toString())
                 .build();
         HCSSend(token, primitive);
         return primitive;
@@ -279,7 +266,7 @@ public final class Transactions {
      * @param amount: The amount to send
      * @throws Exception
      */
-    public static Primitive transferFrom(Token token, String fromAddress, String toAddress, long amount) throws Exception {
+    public Primitive transferFrom(Token token, String fromAddress, String toAddress, long amount) throws Exception {
         setupSDKClient();
         TransferFrom transferFrom = TransferFrom.newBuilder()
                 .setFromAddress(fromAddress)
@@ -287,12 +274,9 @@ public final class Transactions {
                 .setAmount(amount)
                 .build();
 
-        byte[] signature = OPERATOR_KEY.sign(transferFrom.toByteArray());
-
         Primitive primitive = Primitive.newBuilder()
+                .setHeader(primitiveHeader(transferFrom.toByteArray()))
                 .setTransferFrom(transferFrom)
-                .setSignature(ByteString.copyFrom(signature))
-                .setPublicKey(OPERATOR_KEY.publicKey.toString())
                 .build();
         HCSSend(token, primitive);
         return primitive;
@@ -305,18 +289,15 @@ public final class Transactions {
      * @param amount: The amount to burn
      * @throws Exception
      */
-    public static Primitive burn(Token token, long amount) throws Exception {
+    public Primitive burn(Token token, long amount) throws Exception {
         setupSDKClient();
         Burn burn = Burn.newBuilder()
                 .setAmount(amount)
                 .build();
 
-        byte[] signature = OPERATOR_KEY.sign(burn.toByteArray());
-
         Primitive primitive = Primitive.newBuilder()
+                .setHeader(primitiveHeader(burn.toByteArray()))
                 .setBurn(burn)
-                .setSignature(ByteString.copyFrom(signature))
-                .setPublicKey(OPERATOR_KEY.publicKey.toString())
                 .build();
         HCSSend(token, primitive);
         return primitive;
@@ -329,7 +310,7 @@ public final class Transactions {
      * @param primitive: The primitive (message) to send
      * @throws Exception: in the event of an error
      */
-    private static void HCSSend(Token token, Primitive primitive) throws Exception {
+    private void HCSSend(Token token, Primitive primitive) throws Exception {
         if (testing) {
             return;
         }
@@ -343,11 +324,39 @@ public final class Transactions {
     /**
      * Sets up the SDK client, accounting for the possiblity we're running unit tests
      */
-    private static void setupSDKClient() {
+    private void setupSDKClient() {
         if ( ! testing ) {
             OPERATOR_ID = AccountId.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_ID"));
             OPERATOR_KEY = Ed25519PrivateKey.fromString(Dotenv.configure().ignoreIfMissing().load().get("OPERATOR_KEY"));
         }
         client.setOperator(OPERATOR_ID, OPERATOR_KEY);
+    }
+
+    /**
+     * Instantiates a primitive header
+     * @param toSign: the data to sign and include in the header
+     */
+    private PrimitiveHeader primitiveHeader(byte[] toSign) throws IOException {
+        long rand = random.nextLong();
+
+        // for unit test purposes
+        if (randomLongForTest != 0) {
+            rand = randomLongForTest;
+        }
+        // get a random long into a byte array
+        byte[] randomString = String.valueOf(rand).getBytes("UTF-8");
+        // concatenate random long with data to sign
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        outputStream.write(toSign);
+        outputStream.write(randomString);
+        // sign the result
+        byte[] signature = OPERATOR_KEY.sign(outputStream.toByteArray());
+
+        PrimitiveHeader primitiveHeader = PrimitiveHeader.newBuilder()
+            .setRandom(rand)
+            .setSignature(ByteString.copyFrom(signature))
+            .setPublicKey(OPERATOR_KEY.publicKey.toString())
+            .build();
+        return primitiveHeader;
     }
 }
