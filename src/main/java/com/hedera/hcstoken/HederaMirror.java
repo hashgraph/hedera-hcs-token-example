@@ -41,7 +41,6 @@ import java.time.Instant;
  */
 public final class HederaMirror {
     private static final String MIRROR_NODE_ADDRESS = Dotenv.configure().ignoreIfMissing().load().get("MIRROR_NODE_ADDRESS");
-    private static final MirrorClient mirrorClient = new MirrorClient(MIRROR_NODE_ADDRESS);
 
     /**
      * Subscribes to a mirror node and sleeps for a few seconds to allow notifications to come through
@@ -51,6 +50,8 @@ public final class HederaMirror {
      * @throws Exception: in the event of an error
      */
     public static void subscribe(Token token, long seconds) throws Exception {
+        final MirrorClient mirrorClient = new MirrorClient(MIRROR_NODE_ADDRESS);
+
         if (token.getTopicId().isEmpty()) {
             return;
         }
