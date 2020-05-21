@@ -13,6 +13,7 @@ The purpose is to show how to build the necessary components to implement a toke
 * A model for the state (Token and addresses primarily)
 * A means to generate messages to send to HCS
 * A means to subscribe to notifications from a mirror node and act upon the state as a result of processing the notifications.
+* Ensuring that duplicate messages aren't processed to avoid double spend.
 
 To keep things simple, it is operated with command line inputs and state is held in a json file.
 
