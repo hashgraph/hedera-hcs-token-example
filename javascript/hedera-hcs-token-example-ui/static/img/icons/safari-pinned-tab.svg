@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1" xmlns:xl="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="30.07 30.66 15.84 15.84" width="15.84" height="15.84">
+  <defs/>
+  <metadata> Produced by OmniGraffle 7.15 
+    <dc:date>2020-05-26 16:16:55 +0000</dc:date>
+  </metadata>
+  <g id="Canvas_1" fill-opacity="1" stroke="none" fill="none" stroke-opacity="1" stroke-dasharray="none">
+    <title>Canvas 1</title>
+    <rect fill="white" x="30.07" y="30.66" width="15.84" height="15.84"/>
+    <g id="Canvas_1: Layer 1">
+      <title>Layer 1</title>
+      <g id="Graphic_2">
+        <path d="M 37.99 30.66 C 33.615905 30.66 30.07 34.205905 30.07 38.58 C 30.07 42.954095 33.615905 46.5 37.99 46.5 C 42.364095 46.5 45.91 42.954095 45.91 38.58 C 45.91 36.479485 45.075574 34.465002 43.590286 32.979714 C 42.105 31.494426 40.090515 30.66 37.99 30.66" fill="black"/>
+      </g>
+      <g id="Graphic_3">
+        <path d="M 40.218104 35.018444 L 40.218104 37.25223 L 35.76076 37.25223 L 35.76076 35.018444 L 34.722872 35.018444 L 34.722872 42.13246 L 35.766443 42.13246 L 35.766443 39.90663 L 40.22379 39.90663 L 40.22379 42.13587 L 41.26736 42.13587 L 41.26736 35.018444 Z M 40.218104 39.144983 L 35.76076 39.144983 L 35.76076 38.008196 L 40.218104 38.008196 Z" fill="white"/>
+      </g>
+    </g>
+  </g>
+</svg>
