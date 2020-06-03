@@ -24,6 +24,7 @@ let token = new Token.Token();
 
 exports.startListening = function () {
     // Guard against being called multiple times
+    console.log('Mirror startListening')
     if (isListening) return
     isListening = true
 
@@ -33,6 +34,7 @@ exports.startListening = function () {
             consensusTopicId = token.topicId;
             lastReceivedResponseTime = token.lastConsensusTime;
 
+            console.log('Mirror new MirrorConsensusTopicQuery()')
             new MirrorConsensusTopicQuery()
                 .setTopicId(consensusTopicId)
                 // .setStartTime(0)
@@ -48,6 +50,7 @@ exports.startListening = function () {
 
                     handleNotification(response);
                 }, (error) => {
+                    console.warn('Mirror error')
                     console.warn(error)
                     listenAttempts += 1
                     setTimeout(() => {
