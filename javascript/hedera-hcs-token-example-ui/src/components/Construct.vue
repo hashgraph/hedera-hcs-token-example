@@ -96,7 +96,7 @@
     data () {
       return {
         valid: false,
-        restAPI: '',
+        restAPI: 'http://' + window.location.hostname + ':' + process.env.HOST_PORT,
         name: '',
         symbol: '',
         decimals: 0,
@@ -117,8 +117,6 @@
       }
     },
     created () {
-      this.restAPI = process.env.HOST_PORT
-
       bus.$on('refresh', (message) => {
         router.replace('/')
       })

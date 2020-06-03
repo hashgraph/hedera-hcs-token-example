@@ -80,7 +80,7 @@
     data () {
       return {
         msg: 'Welcome to Hedera Token',
-        restAPI: '',
+        restAPI: 'http://' + window.location.hostname + ':' + process.env.HOST_PORT,
         userName: Cookie.get('userName'),
         userKey: '',
         state: '',
@@ -104,8 +104,6 @@
       }
     },
     mounted () {
-      this.restAPI = process.env.HOST_PORT
-
       this.userName = Cookie.get('userName')
       if ((typeof (this.userName) !== 'undefined') && (this.userName !== '')) {
         axios.get(this.restAPI.concat('/v1/token/userExists/' + this.userName))

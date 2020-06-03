@@ -8,7 +8,7 @@ webSocketServer.on('connection', function connection(webSocket) {
     webSocket.on('message', function incoming(message) {
         userID = JSON.parse(message).userId
         webSockets[userID] = webSocket
-        console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(webSockets))
+        console.log('connected: ' + userID)
     })
 
     // Forward Message
@@ -31,7 +31,6 @@ webSocketServer.on('connection', function connection(webSocket) {
 
     webSocket.on('close', function () {
         delete webSockets[userID]
-        console.log('deleted: ' + userID)
     })
 })
 
@@ -39,6 +38,5 @@ exports.sendNotification = function  (destination, message) {
     const toUserWebSocket = webSockets[destination]
     if (toUserWebSocket) {
         toUserWebSocket.send(JSON.stringify(message))
-        console.log('sent to ' + destination + ': ' + message)
     }
 }

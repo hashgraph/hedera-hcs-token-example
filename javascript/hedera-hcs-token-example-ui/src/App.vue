@@ -45,7 +45,7 @@ export default {
       }
     }
     this.$socketClient.onMessage = (msg) => {
-      console.log(msg.data)
+      this.snackbar = false
       const notification = JSON.parse(msg.data)
 
       let message = ''

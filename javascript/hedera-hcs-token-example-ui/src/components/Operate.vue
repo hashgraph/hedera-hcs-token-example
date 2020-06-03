@@ -276,7 +276,7 @@
     },
     data () {
       return {
-        restAPI: '',
+        restAPI: 'http://' + window.location.hostname + ':' + process.env.HOST_PORT,
         inProgress: false,
         balance: 0,
         tokenName: Cookie.get('tokenName'),
@@ -302,7 +302,6 @@
       }
     },
     created () {
-      this.restAPI = process.env.HOST_PORT
       this.address = Cookie.get('userKey')
       this.userName = Cookie.get('userName')
       if ((typeof (this.address) === 'undefined') || (this.address === '')) {

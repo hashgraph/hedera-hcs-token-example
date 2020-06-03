@@ -98,13 +98,12 @@
     },
     data () {
       return {
-        restAPI: '',
         inProgress: false,
-        balance: 0
+        balance: 0,
+        restAPI: 'http://' + window.location.hostname + ':' + process.env.HOST_PORT
       }
     },
     mounted () {
-      this.restAPI = process.env.HOST_PORT
       Utils.getBalance()
         .then(balance => {
           this.balance = balance

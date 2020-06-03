@@ -108,7 +108,7 @@
     data () {
       return {
         valid: false,
-        restAPI: '',
+        restAPI: 'http://' + window.location.hostname + ':' + process.env.HOST_PORT,
         forename: Utils.getRandomFirstName(),
         surname: Utils.getRandomLastName(),
         idProof: Utils.getRandomId(), // 'KJUH1232232',
@@ -120,7 +120,6 @@
       }
     },
     created () {
-      this.restAPI = process.env.HOST_PORT
       bus.$on('refresh', (message) => {
         router.go()
       })
