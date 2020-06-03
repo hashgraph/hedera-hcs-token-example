@@ -47,7 +47,7 @@ const getBalance = function (address) {
 }
 
 const getUsersExcept = function (address) {
-  const sql = `SELECT username as text FROM addresses where public_key <> ? AND username <> ? and username <> 'Token'`
+  const sql = `SELECT username as text FROM addresses where public_key <> ? AND username <> ? and username <> 'Token' order by username`
   return new Promise(function (resolve, reject) {
 
     db.all(sql, [ address, address ], (err, rows) => {
