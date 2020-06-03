@@ -86,6 +86,7 @@
   import Cookie from 'js-cookie'
   import ProgressDialog from './ProgressDialog'
   import { bus } from '../main'
+  import router from '../router'
 
   export default {
     name: 'Construct',
@@ -117,6 +118,10 @@
     },
     created () {
       this.restAPI = process.env.HOST_PORT
+
+      bus.$on('refresh', (message) => {
+        router.replace('/')
+      })
     },
     methods: {
       postToken: function () {

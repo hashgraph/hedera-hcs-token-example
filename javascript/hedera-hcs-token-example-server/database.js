@@ -1,6 +1,7 @@
 const sqlite3 = require('sqlite3').verbose()
 const dotEnv = require('dotenv')
 const Utils = require('./utils')
+const WebSockets = require('./webSockets')
 
 dotEnv.config({ debug: process.env.DEBUG })
 const db = new sqlite3.Database(process.env.DATABASE_LOCATION)
@@ -370,6 +371,19 @@ const updateOperation = function (signature, operation, from, to, amount, status
                 const sql = 'UPDATE operations SET operation = ?, from_username = ?, to_username = ?, amount = ?, status = ? where signature = ?'
                 const data = [ operation, fromUser, toUser, amount, status, signature ]
                 db.run(sql, data, function (err) {
+                  const notification = {}
+                  notification.operation = operation
+                  notification.from = fromUser
+                  notification.to = toUser
+                  notification.amount = amount
+                  notification.status = status
+
+                  if ((fromUser !== '') && (fromUser !== 'Token')) {
+                    WebSockets.sendNotification(fromUser, notification)
+                  }
+                  if ((toUser !== '') && (toUser !== 'Token')) {
+                    WebSockets.sendNotification(toUser, notification)
+                  }
                   if (err) {
                     reject(err.message)
                   } else {

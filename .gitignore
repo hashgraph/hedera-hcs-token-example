@@ -47,3 +47,4 @@ selenium-debug.log
 *.njsproj
 *.sln
 **/node_modules
+**/dist

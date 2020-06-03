@@ -22,14 +22,12 @@
 </template>
 
 <script>
-// import router from './router'
-// import Cookie from 'js-cookie'
-// import utils from './utils'
+import Cookie from 'js-cookie'
 import { bus } from './main'
 
 export default {
   name: 'app',
-  data () {
+  data: function () {
     return {
       snackbar: false,
       snackMessage: '',
@@ -37,6 +35,59 @@ export default {
     }
   },
   methods: {
+  },
+  created: function () {
+    this.$socketClient.onOpen = () => {
+      if ((typeof (Cookie.get('userName')) !== 'undefined') && (Cookie.get('userName') !== '')) {
+        // register web socket with username
+        console.log('Establishing Socket Connection')
+        this.$socketClient.sendObj({userId: Cookie.get('userName')})
+      }
+    }
+    this.$socketClient.onMessage = (msg) => {
+      console.log(msg.data)
+      const notification = JSON.parse(msg.data)
+
+      let message = ''
+      switch (notification.operation) {
+        case 'construct':
+          message = 'Token construction ' + notification.status
+          break
+        case 'mint':
+          message = 'Token mint (' + notification.amount + ') ' + notification.status
+          break
+        case 'join':
+          message = 'Join ' + notification.status
+          break
+        case 'buy':
+          message = 'Purchase of ' + notification.amount + ' ' + notification.status
+          break
+        case 'redeem':
+          message = 'Sale of ' + notification.amount + ' ' + notification.status
+          break
+        case 'transfer':
+          if (notification.from === Cookie.get('userName')) {
+            message = 'Send ' + notification.amount + ' to ' + notification.to + ' ' + notification.status
+          } else {
+            message = 'Receive ' + notification.amount + ' from ' + notification.from + ' ' + notification.status
+          }
+          break
+      }
+      if (notification.status === 'complete') {
+        this.snackAlert = 'success'
+      } else {
+        this.snackAlert = 'error'
+      }
+      this.snackMessage = message
+      this.snackbar = true
+      bus.$emit('refresh')
+    }
+    this.$socketClient.onClose = (msg) => {
+      console.log('socket closed')
+    }
+    this.$socketClient.onError = (msg) => {
+      console.log('socket error')
+    }
   },
   mounted () {
     bus.$on('showSuccess', (message) => {

@@ -109,6 +109,12 @@
         .then(balance => {
           this.balance = balance
         })
+      bus.$on('refresh', (message) => {
+        Utils.getBalance()
+          .then(balance => {
+            this.balance = balance
+          })
+      })
     },
     methods: {
       operate: function () {

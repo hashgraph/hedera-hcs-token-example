@@ -94,6 +94,7 @@
   import ProgressDialog from './ProgressDialog'
   import { bus } from '../main'
   import Utils from '../utils'
+  import router from '../router'
 
   const {
     Ed25519PrivateKey
@@ -120,6 +121,9 @@
     },
     created () {
       this.restAPI = process.env.HOST_PORT
+      bus.$on('refresh', (message) => {
+        router.go()
+      })
     },
     methods: {
       postToken: function () {
@@ -141,6 +145,7 @@
                   Cookie.set('friendlyName', this.forename + ' ' + this.surname, {expires: 365})
                   Cookie.set('userName', this.userName, {expires: 365})
                   Cookie.set('userKey', privateKey.toString(), {expires: 365})
+                  this.$socketClient.sendObj({userId: Cookie.get('userName')})
 
                   bus.$emit('showSuccess', response.data.message)
                 } else {

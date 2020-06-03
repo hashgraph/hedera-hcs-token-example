@@ -105,17 +105,20 @@
     },
     mounted () {
       this.restAPI = process.env.HOST_PORT
+
       this.userName = Cookie.get('userName')
-      axios.get(this.restAPI.concat('/v1/token/userExists/' + this.userName))
-        .then(response => {
-          if (response.data.exists === false) {
-            // user doesn't exist
-            Utils.resetCookies()
-          }
-        })
-        .catch(e => {
-          console.log(e)
-        })
+      if ((typeof (this.userName) !== 'undefined') && (this.userName !== '')) {
+        axios.get(this.restAPI.concat('/v1/token/userExists/' + this.userName))
+          .then(response => {
+            if (response.data.exists === false) {
+              // user doesn't exist
+              Utils.resetCookies()
+            }
+          })
+          .catch(e => {
+            console.log(e)
+          })
+      }
 
       axios.get(this.restAPI.concat('/v1/token'))
         .then(response => {

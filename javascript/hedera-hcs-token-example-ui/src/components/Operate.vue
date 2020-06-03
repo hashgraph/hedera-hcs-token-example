@@ -330,6 +330,14 @@
         })
 
       this.getOperations()
+
+      bus.$on('refresh', (message) => {
+        this.getOperations()
+        Utils.getBalance()
+          .then(balance => {
+            this.balance = balance
+          })
+      })
     },
     methods: {
       home: function () {
