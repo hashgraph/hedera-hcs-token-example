@@ -9,9 +9,9 @@ package com.hedera.hcstoken;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -65,17 +65,12 @@ public final class Primitives {
             System.out.println(error);
             throw new Exception(error);
         } else {
-            if (token.getTotalSupply() == 0) {
-                // TODO: Switch to BigInteger for supply and addresses ?
-                long tokenSupply = (long) (quantity * Math.pow(10, token.getDecimals()));
-                token.setTotalSupply(tokenSupply);
-                Address ownerAddress = token.getAddress(address);
-                ownerAddress.setBalance(tokenSupply);
-            } else {
-                String error = "Mint - Token already minted";
-                System.out.println(error);
-                throw new Exception(error);
-            }
+            long newQuantity = (long) (quantity * Math.pow(10, token.getDecimals()));
+            long tokenSupply = token.getTotalSupply();
+            token.setTotalSupply(tokenSupply + newQuantity );
+            Address ownerAddress = token.getAddress(address);
+            long balance = ownerAddress.getBalance();
+            ownerAddress.setBalance(balance + newQuantity);
         }
     }
     /**

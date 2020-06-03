@@ -1,0 +1,30 @@
+{
+  "name": "hedera-hcs-token-example-server",
+  "version": "1.0.0",
+  "description": "An example token implementation using Hedera HCS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "gregscullard@hedera.com",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@hashgraph/sdk": "^1.1.12",
+    "@types/google-protobuf": "^3.7.2",
+    "bignumber.js": "^9.0.0",
+    "body-parser": "latest",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "google-protobuf": "^3.11.4",
+    "sqlite3": "^4.2.0",
+    "token": "^0.1.0",
+    "tweetnacl": "^1.0.3",
+    "umzug": "^2.3.0",
+    "ws": "^7.3.0"
+  },
+  "devDependencies": {
+    "bluebird": "^3.7.2",
+    "sequelize": "^5.21.10"
+  }
+}
