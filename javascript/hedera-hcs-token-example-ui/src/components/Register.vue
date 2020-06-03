@@ -121,7 +121,7 @@
     },
     created () {
       bus.$on('refresh', (message) => {
-        router.go()
+        router.go(0)
       })
     },
     methods: {
