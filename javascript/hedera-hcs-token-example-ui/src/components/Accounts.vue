@@ -17,7 +17,7 @@
             <v-list-item-content>
               <v-row no-gutters>
                 <v-col md="auto" class="text-center">
-                  Your Accounts
+                  {{ accountsTitle }}
                 </v-col>
               </v-row>
             </v-list-item-content>
@@ -80,16 +80,11 @@
 </template>
 
 <script>
-  import axios from 'axios'
-  import Cookie from 'js-cookie'
   import router from '../router'
   import Utils from '../utils'
   import ProgressDialog from './ProgressDialog'
   import { bus } from '../main'
-
-  const {
-    Ed25519PrivateKey
-  } = require('@hashgraph/sdk')
+  import Cookie from 'js-cookie'
 
   export default {
     name: 'Accounts',
@@ -99,6 +94,7 @@
     data () {
       return {
         inProgress: false,
+        accountsTitle: 'Your accounts',
         balance: 0,
         restAPI: 'http://' + window.location.hostname + ':' + process.env.HOST_PORT
       }
@@ -114,40 +110,11 @@
             this.balance = balance
           })
       })
+      this.accountsTitle = Cookie.get('userName') + '\'s accounts'
     },
     methods: {
       operate: function () {
         router.replace('/operate')
-      },
-      postToken: function () {
-        const body = {}
-        // generate a new private key
-        Ed25519PrivateKey.generate()
-          .then(privateKey => {
-            const publicKey = privateKey.publicKey
-            body.publicKey = publicKey.toString()
-
-            this.inProgress = true
-
-            axios.post(this.restAPI.concat('/v1/token/join'), body)
-              .then(response => {
-                this.inProgress = false
-                console.log(response.data.message)
-                if (response.data.status) {
-                  this.userName = Cookie.set('userName', this.forename + ' ' + this.surname, {expires: 365})
-                  this.userKey = Cookie.set('userKey', privateKey, {expires: 365})
-
-                  bus.$emit('showSuccess', response.data.message)
-                } else {
-                  bus.$emit('showError', response.data.message)
-                }
-              })
-              .catch(e => {
-                this.inProgress = false
-                console.log(e)
-                bus.$emit('showError', e)
-              })
-          })
       }
     }
   }

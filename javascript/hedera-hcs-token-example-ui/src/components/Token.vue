@@ -27,23 +27,16 @@
 
         <v-list dense>
 
-          <v-list-item @click.stop="drawer = !drawer">
+          <v-list-item @click.stop="explore()">
             <v-list-item-icon>
-              <v-icon>{{ ownerRoleIcon }}</v-icon>
+              <v-icon>mdi-web</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title>Owner Role</v-list-item-title>
+              <v-list-item-title> {{ this.topicId }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item @click.stop="drawer = !drawer">
-            <v-list-item-icon>
-              <v-icon>{{ userRoleIcon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>User Role</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+          <v-divider></v-divider>
 
           <v-list-item @click.stop="resetCookies()">
             <v-list-item-icon>
@@ -93,7 +86,9 @@
         miniVariant: false,
         right: true,
         rightDrawer: false,
-        networkStatus: null
+        networkStatus: null,
+        topicUrl: '',
+        topicId: ''
       }
     },
     methods: {
@@ -101,6 +96,9 @@
         Utils.resetCookies()
         this.drawer = false
         router.go(0)
+      },
+      explore: function () {
+        window.open(this.topicUrl, '_blank')
       }
     },
     mounted () {
@@ -123,6 +121,8 @@
           Cookie.set('tokenName', response.data.name, { expires: 365 })
           this.userName = Cookie.get('userName')
           this.userKey = Cookie.get('userKey')
+          this.topicId = 'Explore ' + response.data.topicId
+          this.topicUrl = 'https://explorer.kabuto.sh/testnet/id/' + response.data.topicId
           if (response.data.name === '') {
             // token doesn't exist
             this.msg = 'No token'
