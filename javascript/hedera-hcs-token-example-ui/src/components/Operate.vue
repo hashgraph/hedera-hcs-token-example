@@ -24,10 +24,13 @@
           raised
         >
           <v-card-text>
-            <p class="display-3 text--primary">
-              {{ tokenName }}
+            <p class="display-1 text--primary">
+              {{ accountTitle }}
             </p>
             <p class="display-2 text--primary">
+              {{ tokenName }}
+            </p>
+            <p class="display-1 text--primary">
               $ {{ balance }}
             </p>
           </v-card-text>
@@ -298,7 +301,8 @@
           v => v.valueOf() >= 1 || 'Amount must be more than 0'
         ],
         userName: Cookie.get('userName'),
-        operations: []
+        operations: [],
+        accountTitle: Cookie.get('userName')
       }
     },
     created () {
