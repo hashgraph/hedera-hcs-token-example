@@ -21,7 +21,7 @@
     "token": "^0.1.0",
     "tweetnacl": "^1.0.3",
     "umzug": "^2.3.0",
-    "ws": "^7.3.0"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "bluebird": "^3.7.2",
