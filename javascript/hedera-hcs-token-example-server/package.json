@@ -1,5 +1,5 @@
 {
-  "name": "hedera-hcs-token-example-server",
+  "name": " @hashgraph/hedera-hcs-token-example-server",
   "version": "1.0.0",
   "description": "An example token implementation using Hedera HCS",
   "main": "index.js",

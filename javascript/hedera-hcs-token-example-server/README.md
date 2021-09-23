@@ -56,6 +56,8 @@ npm install
 
 _note: edit `.env` to include token name, etc... if you want to construct the token at initialisation_
 ```
+mkdir database
+
 node scripts/migrate.js
 ```
 
