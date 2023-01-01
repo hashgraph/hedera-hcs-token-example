@@ -328,3 +328,4 @@ then
 The script will prompt whether you want to rebuild the project (maven).
 Then it will prompt whether to delete local state files (*.json).
 It will finally run through all the supported operations.
+test

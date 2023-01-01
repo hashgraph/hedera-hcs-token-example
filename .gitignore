@@ -48,3 +48,4 @@ selenium-debug.log
 *.sln
 **/node_modules
 **/dist
+.git/
